@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Sequence Worksheet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: linear-gradient(135deg, #8a3000, #d65a00);
+            --accent: #ffcc00;
+            --card-border: #ff9500;
+            --card-inner: #fff3e0;
+            --text-main: #3e1c00;
+            --btn-primary: linear-gradient(145deg, #ffb300, #ff8f00);
+            --a4-width: 210mm;
+        }
+
+        [data-theme="blue"] { --bg-main: linear-gradient(135deg, #002f6c, #0056b3); --accent: #00d4ff; --card-border: #007bff; --card-inner: #e3f2fd; --text-main: #001a35; --btn-primary: linear-gradient(145deg, #00d4ff, #007bff); }
+        [data-theme="nature"] { --bg-main: linear-gradient(135deg, #1b5e20, #4caf50); --accent: #c6ff00; --card-border: #388e3c; --card-inner: #f1f8e9; --text-main: #002e00; --btn-primary: linear-gradient(145deg, #c6ff00, #76ff03); }
+        [data-theme="cyber"] { --bg-main: linear-gradient(135deg, #311b92, #673ab7); --accent: #e040fb; --card-border: #9c27b0; --card-inner: #f3e5f5; --text-main: #1a0033; --btn-primary: linear-gradient(145deg, #e040fb, #aa00ff); }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; }
+        body { margin: 0; font-family: 'Nunito', sans-serif; background: var(--bg-main); display: flex; justify-content: center; min-height: 100vh; }
+
+        .settings-panel { width: 350px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px); padding: 20px; height: 100vh; position: sticky; top: 0; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.1); color: white; }
+        .panel-header { font-family: 'Fredoka', sans-serif; font-size: 1.4rem; color: var(--accent); margin-bottom: 15px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .control-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; font-weight: 700; color: var(--accent); text-transform: uppercase; font-size: 0.7rem; }
+        select, input { width: 100%; padding: 8px; border-radius: 6px; border: none; background: rgba(255,255,255,0.1); color: white; outline: none; margin-bottom: 5px; font-size: 0.85rem; }
+        option { background: #333; }
+        .btn-gen { width: 100%; padding: 12px; border-radius: 10px; border: none; background: var(--btn-primary); color: var(--text-main); font-weight: 900; cursor: pointer; font-family: 'Fredoka'; margin-top: 5px; }
+        .btn-print { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--accent); background: transparent; color: var(--accent); font-weight: 900; cursor: pointer; font-family: 'Fredoka'; margin-top: 10px; }
+
+        .worksheet-wrapper { background: white; width: var(--a4-width); padding: 15mm; color: #333; margin: 20px; min-height: 297mm; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .ws-header { border-bottom: 4px solid var(--card-border); padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .ws-title-box h1 { margin: 0; font-family: 'Fredoka'; font-size: 2.5rem; color: var(--text-main); line-height: 1; }
+        .ws-info-box { font-weight: 700; font-size: 1rem; text-align: right; line-height: 1.6; }
+        .input-line { display: inline-block; width: 150px; border-bottom: 2px solid #ccc; margin-left: 5px; height: 1rem; }
+        .ws-content { display: flex; flex-direction: column; gap: 20px; }
+
+        .q-card { background: var(--card-inner); border: 2px solid var(--card-border); border-radius: 20px; padding: 15px; break-inside: avoid; }
+        .q-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .q-num { background: var(--card-border); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; }
+        .q-text { font-weight: 800; font-size: 1.2rem; color: var(--text-main); }
+        .sequence-row { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .item-container { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .seq-item { width: 75px; height: 75px; background: white; border: 3px solid var(--card-border); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-family: 'Fredoka'; color: var(--text-main); box-shadow: 3px 3px 0px var(--card-border); }
+        .seq-item.empty { background: #fff; border-style: dashed; box-shadow: none; color: transparent; }
+        .ans-box { width: 30px; height: 30px; border: 2px solid #bbb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; color: #666; background: white; }
+        .arrow { font-size: 1.8rem; color: var(--card-border); font-weight: 900; }
+        .ws-footer { margin-top: 30px; text-align: center; border-top: 1px solid #eee; padding-top: 10px; color: #999; font-size: 0.8rem; }
+
+        @media print { 
+            body { background: white; } 
+            .settings-panel { display: none; } 
+            
+            .worksheet-wrapper { 
+                margin: 0; 
+                box-shadow: none; 
+                width: 100%; 
+                min-height: auto; 
+                padding: 10mm; 
+            }
+
+            .ws-header { margin-bottom: 15px; padding-bottom: 5px; }
+            .ws-content { gap: 12px; }
+            .q-card { padding: 10px; border-radius: 15px; }
+            .q-header { margin-bottom: 8px; }
+            .ws-footer { margin-top: 15px; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body data-theme="orange">
+
+    <div class="settings-panel">
+        <div class="panel-header">⚙️ SEQUENCE LAB</div>
+
+        <div class="control-group">
+            <label>Language</label>
+            <select id="langSelect" onchange="render()"></select>
+        </div>
+
+        <div class="control-group">
+            <label>Mode</label>
+            <select id="modeSelect" onchange="generatePool()">
+                <option value="numbers">🔢 Numbers</option>
+                <option value="alphabet">🔤 Alphabet</option>
+                <option value="logic">🌱 Logic Sets</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Questions: <span id="qCountVal">4</span></label>
+            <input type="range" id="qCount" min="1" max="12" value="4" oninput="updateCountLabel(); generatePool();">
+        </div>
+
+        <hr style="opacity:0.2">
+
+        <div class="control-group">
+            <label>Custom Title</label>
+            <input type="text" id="custTitle" placeholder="LOGIC LAB" oninput="render()">
+            <label>Custom Subtitle</label>
+            <input type="text" id="custSubtitle" placeholder="SEQUENCE PRACTICE" oninput="render()">
+            <label>Custom Name Field</label>
+            <input type="text" id="custName" placeholder="Name" oninput="render()">
+            <label>Custom Class Field</label>
+            <input type="text" id="custClass" placeholder="Class" oninput="render()">
+            <label>Custom Footer</label>
+            <input type="text" id="custFooter" placeholder="Created with OrbitLogic" oninput="render()">
+        </div>
+
+        <div class="control-group">
+            <label>Color Scheme</label>
+            <select id="themeSelect" onchange="updateTheme()">
+                <option value="orange">Sunset Orange</option>
+                <option value="blue">Futuristic Blue</option>
+                <option value="nature">Nature Green</option>
+                <option value="cyber">Cyber Purple</option>
+            </select>
+        </div>
+
+        <div class="control-group" style="display:flex; gap:15px">
+            <label style="display:flex; align-items:center; gap:5px; cursor:pointer">
+                <input type="checkbox" id="missingMode" onchange="render()" style="width:15px"> Missing?
+            </label>
+            <label style="display:flex; align-items:center; gap:5px; cursor:pointer">
+                <input type="checkbox" id="showAns" onchange="render()" style="width:15px"> Answer?
+            </label>
+        </div>
+
+        <button class="btn-gen" onclick="generatePool()">✨ REGENERATE DATA</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT SHEET</button>
+    </div>
+
+    <div class="worksheet-wrapper">
+        <div class="ws-header">
+            <div class="ws-title-box">
+                <h1 id="out-title">LOGIC LAB</h1>
+                <div id="out-subtitle" style="font-weight:900; color: #888; letter-spacing: 2px; font-size: 0.8rem;">SEQUENCE PRACTICE</div>
+            </div>
+            <div class="ws-info-box">
+                <div><span id="lbl-name">Name</span>: <span class="input-line"></span></div>
+                <div><span id="lbl-class">Class</span>: <span class="input-line"></span></div>
+            </div>
+        </div>
+        <div class="ws-content" id="questions"></div>
+        <div class="ws-footer" id="out-footer"></div>
+    </div>
+
+    <script>
+        const translations = {
+            "English": { name: "Name", class: "Class", title: "LOGIC LAB", subtitle: "SEQUENCE PRACTICE", q_ord: "Arrange in the correct order:", q_miss: "Fill in the missing items:", footer: "Educational Resource" },
+            "Bahasa Indonesia": { name: "Nama", class: "Kelas", title: "LAB LOGIKA", subtitle: "LATIHAN URUTAN", q_ord: "Urutkan dengan benar:", q_miss: "Lengkapi urutan berikut:", footer: "Sumber Edukasi" },
+            "Español": { name: "Nombre", class: "Clase", title: "LAB DE LÓGICA", subtitle: "PRÁCTICA DE SECUENCIAS", q_ord: "Ordenar correctamente:", q_miss: "Completa los faltantes:", footer: "Recurso Educativo" },
+            "Français": { name: "Nom", class: "Classe", title: "LABO LOGIQUE", subtitle: "PRATIQUE DES SÉQUENCES", q_ord: "Classer dans l'ordre:", q_miss: "Complétez la suite:", footer: "Ressource Pédagogique" },
+            "Deutsch": { name: "Name", class: "Klasse", title: "LOGIK-LABOR", subtitle: "SEQUENZ-ÜBUNG", q_ord: "In die richtige Reihenfolge:", q_miss: "Fehlende Teile ausfüllen:", footer: "Bildungsmaterial" },
+            "Italiano": { name: "Nome", class: "Classe", title: "LAB DI LOGICA", subtitle: "PRATICA DI SEQUÊNCIA", q_ord: "Ordina correttamente:", q_miss: "Completa la sequenza:", footer: "Risorsa Didattica" },
+            "Português": { name: "Nome", class: "Classe", title: "LAB DE LÓGICA", subtitle: "PRÁTICA DE SEQUÊNCIA", q_ord: "Coloque na ordem correta:", q_miss: "Preencha o que falta:", footer: "Recurso Educativo" },
+            "Nederlands": { name: "Naam", class: "Klas", title: "LOGICA LAB", subtitle: "REEKS OEFENEN", q_ord: "Zet in de juiste volgorde:", q_miss: "Vul de ontbrekende in:", footer: "Educatief Materiaal" },
+            "Türkçe": { name: "İsim", class: "Sınıf", title: "MANTIK LABORATUVARI", subtitle: "SIRALAMA ALIŞTIRMASI", q_ord: "Doğru sıraya koyun:", q_miss: "Eksikleri tamamlayın:", footer: "Eğitim Kaynağı" },
+            "Arabic (العربية)": { name: "الاسم", class: "الصف", title: "مختبر المنطق", subtitle: "ممارسة التسلسل", q_ord: "رتب بالتسلسل الصحيح:", q_miss: "أكمل الفراغات التالية:", footer: "مورد تعليمي" },
+            "Chinese (中文)": { name: "姓名", class: "班级", title: "逻辑实验室", subtitle: "序列练习", q_ord: "按正确顺序排列:", q_miss: "填补缺失的部分:", footer: "教育资源" },
+            "Japanese (日本語)": { name: "名前", class: "クラス", title: "ロジック・ラボ", subtitle: "シーケンス練習", q_ord: "正しい順序に並べなさい:", q_miss: "抜けている部分を埋めなさい:", footer: "教育用リソース" },
+            "Korean (한국어)": { name: "이름", class: "반", title: "논리 연구소", subtitle: "시퀀스 연습", q_ord: "올바른 순서로 배열하세요:", q_miss: "빈칸을 채우세요:", footer: "교육 리소스" },
+            "Hindi (हिन्दी)": { name: "नाम", class: "कक्षा", title: "तर्क प्रयोगशाला", subtitle: "अनुक्रम अभ्यास", q_ord: "सही क्रम में व्यवस्थित करें:", q_miss: "लुप्त वस्तुओं को भरें:", footer: "शैक्षिक संसाधन" },
+            "Russian (Русский)": { name: "Имя", class: "Класс", title: "ЛОГИЧЕСКАЯ ЛАБ", subtitle: "ПРАКТИКА ПОСЛЕДОВАТЕЛЬНОСТИ", q_ord: "Расположите по порядку:", q_miss: "Заполните пропуски:", footer: "Учебный ресурс" }
+        };
+
+        const logicSets = [
+            ['🪴', '🌱', '🌿', '🌳'], 
+            ['🐣', '🥚', '🐥', '🐓'], 
+            ['🌕', '🌗', '🌓', '🌑'], 
+            ['🧑', '🧒', '👶', '🧓'], 
+            ['🧱', '🏠', '🏘️', '🏙️'], 
+            ['☀️', '🌅', '🌙', '🌇'], 
+            ['🔋', '🔌', '🪫', '⚡'], 
+            ['🌾', '🥖', '🥣', '🥪'], 
+            ['😴', '🪥', '🍽️', '🎒'], 
+            ['🥚', '🍳', '🍽️', '😋'], 
+            ['🧦', '👟', '🚶', '😊'], 
+            ['✋', '🫧', '🚿', '✋✨']  
+        ];
+
+        let currentPool = [];
+
+        function updateCountLabel() { document.getElementById('qCountVal').innerText = document.getElementById('qCount').value; }
+        function updateTheme() { document.body.setAttribute('data-theme', document.getElementById('themeSelect').value); }
+
+        function generatePool() {
+            const mode = document.getElementById('modeSelect').value;
+            const count = parseInt(document.getElementById('qCount').value);
+            currentPool = [];
+            for (let i = 0; i < count; i++) {
+                currentPool.push({ original: generateSingle(mode, i), scrambled: [] });
+            }
+            render();
+        }
+
+        function generateSingle(mode, index) {
+            if (mode === 'numbers') {
+                let start = (index * 5) + Math.floor(Math.random() * 5);
+                return [start, start + 1, start + 2, start + 3];
+            }
+            if (mode === 'alphabet') {
+                let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                let start = (index * 2) % 22;
+                return chars.substring(start, start + 4).split('');
+            }
+            if (mode === 'logic') {
+                return logicSets[index % logicSets.length];
+            }
+            return ['❓','❓','❓','❓'];
+        }
+
+        function render() {
+            const langKey = document.getElementById('langSelect').value || "English";
+            const t = translations[langKey];
+            const isMissing = document.getElementById('missingMode').checked;
+            const showAns = document.getElementById('showAns').checked;
+
+            document.getElementById('out-title').innerText = document.getElementById('custTitle').value || t.title;
+            document.getElementById('out-subtitle').innerText = document.getElementById('custSubtitle').value || t.subtitle;
+            document.getElementById('lbl-name').innerText = document.getElementById('custName').value || t.name;
+            document.getElementById('lbl-class').innerText = document.getElementById('custClass').value || t.class;
+            document.getElementById('out-footer').innerText = document.getElementById('custFooter').value || t.footer;
+
+            const container = document.getElementById('questions');
+            container.innerHTML = '';
+
+            currentPool.forEach((q, idx) => {
+                let display = [...q.original];
+                let instruction = isMissing ? t.q_miss : t.q_ord;
+                let holes = [1, 3]; 
+
+                if (!isMissing) {
+                    if (!q.scrambled || q.scrambled.length === 0) {
+                        q.scrambled = [...q.original].sort(() => 0.5 - Math.random());
+                    }
+                    display = q.scrambled;
+                }
+
+                let itemsHtml = display.map((item, dIdx) => {
+                    let isHole = isMissing && holes.includes(dIdx);
+                    let correctPos = q.original.indexOf(item) + 1;
+                    
+                    let itemDisplay = item;
+                    if (item === '✋✨') {
+                        itemDisplay = `<span style="font-size: 1.6rem; display: block; line-height: 1;">${item}</span>`;
+                    }
+
+                    return `
+                        <div class="item-container">
+                            <div class="seq-item ${isHole && !showAns ? 'empty' : ''}">
+                                ${isHole && !showAns ? '' : itemDisplay}
+                            </div>
+                            ${!isMissing ? `<div class="ans-box">${showAns ? correctPos : ''}</div>` : ''}
+                        </div>
+                    `;
+                }).join('<div class="arrow">→</div>');
+
+                // PERBAIKAN KHUSUS DI SINI:
+                // Jika jumlah soal ada 6, kita paksa pindah halaman setelah soal ke-4 (index 3).
+                // Ini membuat Halaman 1 isi 4 soal, Halaman 2 isi 2 soal + footer.
+                let breakStyle = "";
+                if (currentPool.length === 6 && idx === 3) {
+                    breakStyle = "break-after: page; page-break-after: always;";
+                }
+
+                container.innerHTML += `
+                    <div class="q-card" style="${breakStyle}">
+                        <div class="q-header"><div class="q-num">${idx + 1}</div><div class="q-text">${instruction}</div></div>
+                        <div class="sequence-row">${itemsHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        window.onload = () => {
+            const langEl = document.getElementById('langSelect');
+            Object.keys(translations).forEach(l => langEl.innerHTML += `<option value="${l}">${l}</option>`);
+            generatePool();
+        };
+    </script>
+</body>
+</html>
