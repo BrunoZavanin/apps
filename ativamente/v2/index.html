@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KLZJ4LMC');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AtivaMente Kids — Atividades Educativas em Segundos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FDF8F0;
+    --warm-white: #FFFCF7;
+    --ink: #1A1208;
+    --brown: #3D2B1A;
+    --amber: #E8820C;
+    --amber-light: #F5A832;
+    --amber-pale: #FEF0D0;
+    --green: #2D6A4F;
+    --green-light: #D8F3DC;
+    --red-soft: #C1121F;
+    --gray: #6B5B4E;
+    --gray-light: #F0E9DF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-noise {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  .hero-dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(232,130,12,0.15) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .hero-blob {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(232,130,12,0.2) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none; z-index: 0;
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+
+  .hero-inner {
+    position: relative; z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 100px 32px 80px;
+    text-align: center;
+  }
+
+  /* floating activity card previews */
+  .hero-preview {
+    margin-top: 56px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    animation: fadeDown 0.8s 0.5s ease both;
+  }
+
+  .preview-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 18px 20px;
+    backdrop-filter: blur(8px);
+    min-width: 140px;
+    text-align: left;
+    transition: transform 0.3s ease;
+  }
+
+  .preview-card:hover { transform: translateY(-4px); }
+
+  .preview-card-icon {
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .preview-card-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--cream);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .preview-card-sub {
+    font-size: 0.68rem;
+    color: rgba(253,248,240,0.4);
+    display: block;
+  }
+
+  .preview-card-featured {
+    background: var(--amber);
+    border-color: var(--amber);
+    transform: scale(1.06) translateY(-8px);
+  }
+
+  .preview-card-featured .preview-card-title { color: var(--ink); }
+  .preview-card-featured .preview-card-sub { color: rgba(26,18,8,0.6); }
+  .preview-card-featured:hover { transform: scale(1.06) translateY(-12px); }
+
+  .preview-label {
+    position: absolute;
+    bottom: -24px;
+    left: 50%; transform: translateX(-50%);
+    font-size: 0.72rem;
+    color: rgba(253,248,240,0.3);
+    white-space: nowrap;
+    letter-spacing: 0.06em;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(232,130,12,0.15);
+    border: 1px solid rgba(232,130,12,0.4);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--amber-light);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .hero-badge-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--amber);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.8rem, 7vw, 5.2rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 28px;
+    animation: fadeDown 0.7s 0.1s ease both;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--amber-light);
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: rgba(253,248,240,0.65);
+    line-height: 1.7;
+    max-width: 620px;
+    margin: 0 auto 48px;
+    animation: fadeDown 0.7s 0.2s ease both;
+  }
+
+  .hero-cta-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    animation: fadeDown 0.7s 0.3s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--amber);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 20px 40px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 0 0 0 rgba(232,130,12,0.4);
+    animation: glow 2.5s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    0%,100%{box-shadow:0 0 0 0 rgba(232,130,12,0.4)}
+    50%{box-shadow:0 0 0 16px rgba(232,130,12,0)}
+  }
+
+  .btn-primary:hover {
+    background: var(--amber-light);
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(253,248,240,0.6);
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .btn-secondary:hover { color: var(--cream); }
+
+  .play-icon {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    transition: background 0.2s;
+  }
+
+  .btn-secondary:hover .play-icon { background: rgba(255,255,255,0.25); }
+
+  .hero-stats {
+    position: relative; z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 32px;
+    animation: fadeDown 0.7s 0.4s ease both;
+  }
+
+  .hero-stat {
+    flex: 1;
+    max-width: 200px;
+    text-align: center;
+    padding: 0 24px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .hero-stat:last-child { border-right: none; }
+
+  .hero-stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--amber-light);
+    display: block;
+  }
+
+  .hero-stat-label {
+    font-size: 0.78rem;
+    color: rgba(253,248,240,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+    display: block;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── PAIN ── */
+  .pain {
+    background: var(--warm-white);
+    padding: 100px 32px;
+  }
+
+  .pain-inner {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .pain h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 48px;
+    color: var(--ink);
+  }
+
+  .pain-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+    border: 2px solid var(--ink);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 60px;
+  }
+
+  .pain-card {
+    background: var(--cream);
+    padding: 32px 28px;
+    border-right: 2px solid var(--ink);
+    position: relative;
+  }
+
+  .pain-card:last-child { border-right: none; }
+
+  .pain-card-icon {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .pain-card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .pain-card p {
+    font-size: 0.9rem;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  .pain-bridge {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 20px;
+    padding: 40px 48px;
+    text-align: center;
+  }
+
+  .pain-bridge p {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .pain-bridge strong {
+    color: var(--amber-light);
+    font-style: normal;
+  }
+
+  /* ── SOLUTION ── */
+  .solution {
+    padding: 100px 32px;
+    background: var(--cream);
+  }
+
+  .solution-inner {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .solution-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+
+  .solution-header h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .solution-header p {
+    font-size: 1.05rem;
+    color: var(--gray);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-bottom: 80px;
+  }
+
+  .step {
+    position: relative;
+    padding: 36px 28px;
+    border-radius: 20px;
+    background: var(--warm-white);
+    border: 1.5px solid rgba(61,43,26,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .step:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(61,43,26,0.1);
+  }
+
+  .step-num {
+    font-family: 'Fraunces', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--amber-pale);
+    line-height: 1;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .step h3 {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+  }
+
+  .step p {
+    font-size: 0.9rem;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  .step-arrow {
+    position: absolute;
+    top: 50%; right: -20px;
+    transform: translateY(-50%);
+    color: var(--amber);
+    font-size: 1.4rem;
+    z-index: 1;
+  }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials {
+    background: var(--ink);
+    padding: 100px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .testimonials::before {
+    content: '"';
+    position: absolute;
+    font-family: 'Fraunces', serif;
+    font-size: 40rem;
+    color: rgba(255,255,255,0.02);
+    top: -120px; left: -40px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .testimonials-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+
+  .testimonials h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    color: var(--cream);
+    text-align: center;
+    margin-bottom: 56px;
+    font-weight: 700;
+  }
+
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .testi-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 32px 28px;
+    position: relative;
+    transition: background 0.3s ease;
+  }
+
+  .testi-card:hover { background: rgba(255,255,255,0.07); }
+
+  .testi-stars {
+    display: flex; gap: 4px;
+    margin-bottom: 20px;
+  }
+
+  .star { color: var(--amber); font-size: 1rem; }
+
+  .testi-card p {
+    font-size: 0.95rem;
+    color: rgba(253,248,240,0.75);
+    line-height: 1.7;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  .testi-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .testi-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 1rem;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+
+  .testi-avatar-a { background: linear-gradient(135deg, #E8820C, #F5A832); color: var(--ink); }
+  .testi-avatar-c { background: linear-gradient(135deg, #2D6A4F, #52B788); color: #fff; }
+  .testi-avatar-r { background: linear-gradient(135deg, #8B3A8B, #C77DFF); color: #fff; }
+
+  .testi-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(45,106,79,0.2);
+    border: 1px solid rgba(45,106,79,0.4);
+    border-radius: 100px;
+    padding: 3px 8px;
+    font-size: 0.68rem;
+    color: #52B788;
+    font-weight: 600;
+    margin-bottom: 16px;
+    letter-spacing: 0.04em;
+  }
+
+  .testi-card-featured {
+    border-color: rgba(232,130,12,0.3);
+    background: rgba(232,130,12,0.06);
+  }
+
+  .testi-name {
+    font-weight: 700;
+    color: var(--cream);
+    font-size: 0.9rem;
+  }
+
+  .testi-role {
+    font-size: 0.78rem;
+    color: rgba(253,248,240,0.4);
+    margin-top: 2px;
+  }
+
+  /* ── GENERATORS ── */
+  .generators {
+    padding: 100px 32px;
+    background: var(--warm-white);
+  }
+
+  .generators-inner {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .generators-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .generators-header h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 900;
+    margin-bottom: 16px;
+  }
+
+  .generators-header p {
+    font-size: 1rem;
+    color: var(--gray);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .gen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .gen-item {
+    background: var(--cream);
+    border: 1.5px solid rgba(61,43,26,0.1);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    transition: all 0.25s ease;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gen-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--amber-pale) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .gen-item:hover::before { opacity: 1; }
+
+  .gen-item:hover {
+    border-color: var(--amber);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(232,130,12,0.15);
+  }
+
+  .gen-item-icon { font-size: 2rem; margin-bottom: 10px; display: block; position: relative; }
+
+  .gen-item-name {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--ink);
+    line-height: 1.3;
+    position: relative;
+  }
+
+  /* improved fwc cards */
+  .fwc {
+    background: var(--cream);
+    border: 1.5px solid rgba(61,43,26,0.1);
+    border-radius: 24px;
+    padding: 40px 32px;
+    text-align: left;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .fwc::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--amber-pale);
+    transform: translate(30px, 30px);
+    transition: transform 0.4s ease;
+  }
+
+  .fwc:hover::after { transform: translate(20px, 20px) scale(1.5); }
+
+  .fwc:hover {
+    border-color: var(--amber);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(61,43,26,0.1);
+  }
+
+  .fwc-icon { font-size: 2.2rem; margin-bottom: 18px; display: block; }
+
+  .fwc h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .fwc p {
+    font-size: 0.88rem;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  .gen-bonus {
+    background: linear-gradient(135deg, var(--amber) 0%, var(--amber-light) 100%);
+    border-radius: 20px;
+    padding: 36px 40px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    color: var(--ink);
+  }
+
+  .gen-bonus-icon { font-size: 3.5rem; flex-shrink: 0; }
+
+  .gen-bonus h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+
+  .gen-bonus p {
+    font-size: 0.9rem;
+    opacity: 0.75;
+    line-height: 1.6;
+  }
+
+  .bonus-tag {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--amber-light);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 10px;
+  }
+
+  /* ── BENEFITS ── */
+  .benefits {
+    padding: 100px 32px;
+    background: var(--cream);
+  }
+
+  .benefits-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .benefits-text h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 40px;
+  }
+
+  .benefit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .benefit {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+
+  .benefit-check {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--green-light);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--green);
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .benefit h4 {
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+
+  .benefit p {
+    font-size: 0.88rem;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  .benefits-visual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .bv-card {
+    background: var(--warm-white);
+    border-radius: 20px;
+    padding: 28px 24px;
+    border: 1.5px solid rgba(61,43,26,0.07);
+    text-align: center;
+  }
+
+  .bv-card:first-child {
+    grid-column: span 2;
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  .bv-num {
+    font-family: 'Fraunces', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--amber-light);
+    display: block;
+  }
+
+  .bv-label {
+    font-size: 0.82rem;
+    color: rgba(253,248,240,0.5);
+    display: block;
+    margin-top: 4px;
+  }
+
+  .bv-card:not(:first-child) .bv-num { color: var(--amber); }
+  .bv-card:not(:first-child) .bv-label { color: var(--gray); }
+
+  /* ── WHO IS IT FOR ── */
+  .for-who {
+    padding: 100px 32px;
+    background: var(--warm-white);
+  }
+
+  .for-who-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .for-who h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 900;
+    margin-bottom: 16px;
+  }
+
+  .for-who-sub {
+    font-size: 1rem;
+    color: var(--gray);
+    margin-bottom: 56px;
+  }
+
+  .for-who-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    text-align: left;
+  }
+
+
+
+  /* ── PRICING ── */
+  .pricing {
+    padding: 100px 32px;
+    background: var(--ink);
+    text-align: center;
+  }
+
+  .pricing-inner { max-width: 640px; margin: 0 auto; }
+
+  .pricing h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    color: var(--cream);
+    font-weight: 900;
+    margin-bottom: 16px;
+  }
+
+  .pricing-sub {
+    color: rgba(253,248,240,0.5);
+    font-size: 1rem;
+    margin-bottom: 48px;
+    line-height: 1.6;
+  }
+
+  .price-card {
+    background: var(--warm-white);
+    border-radius: 28px;
+    padding: 52px 48px;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid var(--amber);
+  }
+
+  .price-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--amber), var(--amber-light));
+  }
+
+  .price-label {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+
+  .price-anchor {
+    font-size: 0.9rem;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+
+  .price-anchor s { color: rgba(107,91,78,0.6); }
+
+  .price-main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .price-currency {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-top: 12px;
+  }
+
+  .price-value {
+    font-family: 'Fraunces', serif;
+    font-size: 6rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .price-once {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin-bottom: 36px;
+  }
+
+  .price-features {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .price-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .pf-check {
+    color: var(--green);
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .btn-cta-main {
+    display: block;
+    width: 100%;
+    background: var(--amber);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 22px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    margin-bottom: 20px;
+    animation: glow 2.5s ease-in-out infinite;
+  }
+
+  .btn-cta-main:hover {
+    background: var(--amber-light);
+    transform: translateY(-2px);
+  }
+
+  .price-note {
+    font-size: 0.82rem;
+    color: var(--gray);
+  }
+
+  .price-note span { color: var(--ink); font-weight: 600; }
+
+  /* ── COMPARISON TABLE ── */
+  .comparison {
+    padding: 80px 32px;
+    background: var(--cream);
+  }
+
+  .comparison-inner {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .comparison-inner h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 48px;
+    line-height: 1.15;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid rgba(61,43,26,0.1);
+  }
+
+  .comparison-table thead tr {
+    background: var(--ink);
+  }
+
+  .comparison-table th {
+    padding: 20px 28px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(253,248,240,0.5);
+    text-align: left;
+  }
+
+  .comparison-table th.col-ativamente {
+    color: var(--amber-light);
+    text-align: center;
+  }
+
+  .comparison-table th.col-outros {
+    color: rgba(253,248,240,0.35);
+    text-align: center;
+  }
+
+  .comparison-table td {
+    padding: 18px 28px;
+    font-size: 0.92rem;
+    border-bottom: 1px solid rgba(61,43,26,0.07);
+    vertical-align: middle;
+  }
+
+  .comparison-table tr:last-child td { border-bottom: none; }
+
+  .comparison-table tr:nth-child(even) td { background: var(--warm-white); }
+  .comparison-table tr:nth-child(odd) td { background: var(--cream); }
+
+  .comparison-table .col-ativamente {
+    text-align: center;
+    font-weight: 700;
+    color: var(--green);
+    font-size: 1.1rem;
+  }
+
+  .comparison-table .col-outros {
+    text-align: center;
+    color: rgba(107,91,78,0.5);
+    font-size: 1.1rem;
+  }
+
+  /* ── GUARANTEE IMPROVED ── */
+  .guarantee-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    background: linear-gradient(135deg, var(--warm-white) 0%, #F0F7F2 100%);
+    border-radius: 24px;
+    padding: 48px;
+    border: 2px solid rgba(45,106,79,0.2);
+    box-shadow: 0 8px 40px rgba(45,106,79,0.08);
+  }
+
+  .guarantee-badge {
+    flex-shrink: 0;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: var(--green-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.8rem;
+    border: 3px solid var(--green);
+    box-shadow: 0 0 0 6px rgba(45,106,79,0.1);
+  }
+
+  .guarantee h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .guarantee p {
+    font-size: 0.92rem;
+    color: var(--gray);
+    line-height: 1.7;
+  }
+
+  /* ── FAQ ── */
+  .faq {
+    padding: 80px 32px;
+    background: var(--warm-white);
+  }
+
+  .faq-inner { max-width: 680px; margin: 0 auto; }
+
+  .faq h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .faq-item {
+    border-bottom: 1.5px solid rgba(61,43,26,0.1);
+    padding: 24px 0;
+  }
+
+  .faq-q {
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .faq-icon { color: var(--amber); font-size: 1.2rem; flex-shrink: 0; transition: transform 0.3s; }
+
+  .faq-a {
+    font-size: 0.92rem;
+    color: var(--gray);
+    line-height: 1.7;
+    margin-top: 14px;
+    display: none;
+  }
+
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .faq-item.open .faq-a { display: block; }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    background: var(--ink);
+    padding: 100px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .final-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 30% 60%, rgba(232,130,12,0.12) 0%, transparent 60%),
+                      radial-gradient(circle at 70% 30%, rgba(232,130,12,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .final-cta-inner { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+
+  .final-cta h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .final-cta h2 em { font-style: italic; color: var(--amber-light); }
+
+  .final-cta p {
+    color: rgba(253,248,240,0.55);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    max-width: 520px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  .final-cta-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: rgba(253,248,240,0.35);
+    margin-top: 20px;
+  }
+
+  /* ── GUARANTEE ── */
+  .guarantee {
+    padding: 80px 32px;
+    background: var(--cream);
+  }
+
+  /* ── FOOTER IMPROVED ── */
+  footer {
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 48px 32px;
+    text-align: center;
+  }
+
+  .footer-brand {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .footer-tagline {
+    font-size: 0.8rem;
+    color: rgba(253,248,240,0.25);
+    margin-bottom: 24px;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .footer-links a {
+    font-size: 0.78rem;
+    color: rgba(253,248,240,0.35);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--amber-light); }
+
+  .footer-copy {
+    font-size: 0.75rem;
+    color: rgba(253,248,240,0.18);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .steps { grid-template-columns: 1fr; }
+    .step-arrow { display: none; }
+    .benefits-inner { grid-template-columns: 1fr; gap: 48px; }
+    .for-who-cards { grid-template-columns: 1fr; }
+    .guarantee-inner { flex-direction: column; text-align: center; }
+    .hero-stats { flex-wrap: wrap; }
+    .hero-stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 16px; }
+    .pain-cards { grid-template-columns: 1fr; }
+    .pain-card { border-right: none; border-bottom: 2px solid var(--ink); }
+    .pain-card:last-child { border-bottom: none; }
+    .gen-bonus { flex-direction: column; text-align: center; }
+    .price-card { padding: 36px 28px; }
+    .price-value { font-size: 5rem; }
+    .benefits-visual { grid-template-columns: 1fr 1fr; }
+    .hero-preview { flex-wrap: wrap; gap: 10px; }
+    .preview-card { min-width: 120px; }
+    .comparison-table { font-size: 0.82rem; }
+    .comparison-table td, .comparison-table th { padding: 14px 16px; }
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLZJ4LMC"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- ════ HERO ════ -->
+<section class="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-dots"></div>
+  <div class="hero-blob"></div>
+
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Para pais, professores e psicopedagogas
+    </div>
+
+    <h1>
+      Chega de tablet.<br>
+      <em>Atividades educativas</em><br>
+      em 2 minutos.
+    </h1>
+
+    <p class="hero-sub">
+      O AtivaMente Kids gera exercícios personalizados para crianças de 4 a 10 anos — prontos para imprimir, infinitas vezes, sem mensalidade e sem complicação.
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="#pricing" class="btn-primary">
+        ✦ Quero atividades para meu filho hoje
+      </a>
+      <a href="#demo" class="btn-secondary">
+        <span class="play-icon">▶</span>
+        Ver como funciona em 90 segundos
+      </a>
+    </div>
+
+    <div class="hero-preview">
+      <div class="preview-card">
+        <span class="preview-card-icon">🔢</span>
+        <span class="preview-card-title">Matemática</span>
+        <span class="preview-card-sub">Nível 1 • 4–6 anos</span>
+      </div>
+      <div class="preview-card preview-card-featured">
+        <span class="preview-card-icon">✏️</span>
+        <span class="preview-card-title">Traçado de Letras</span>
+        <span class="preview-card-sub">Pronta em 2 min ✦</span>
+      </div>
+      <div class="preview-card">
+        <span class="preview-card-icon">🌀</span>
+        <span class="preview-card-title">Labirinto</span>
+        <span class="preview-card-sub">Nível 2 • 6–8 anos</span>
+      </div>
+      <span class="preview-label">← exemplos de atividades geradas →</span>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-num">+3.200</span>
+      <span class="hero-stat-label">famílias usando</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">10</span>
+      <span class="hero-stat-label">geradores incluídos</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">∞</span>
+      <span class="hero-stat-label">atividades para imprimir</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">R$29</span>
+      <span class="hero-stat-label">pagamento único</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════ PAIN ════ -->
+<section class="pain">
+  <div class="pain-inner">
+    <span class="section-label">A realidade de muitas casas</span>
+    <h2>Você não é uma mãe ruim por colocar o tablet.<br>Você simplesmente não tinha alternativa.</h2>
+
+    <div class="pain-cards">
+      <div class="pain-card">
+        <span class="pain-card-icon">📱</span>
+        <h3>"Só mais 5 minutos..."</h3>
+        <p>E 2 horas depois a criança ainda está na tela, irritada quando você pede para parar.</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-card-icon">⏱️</span>
+        <h3>Atividades prontas = horas preparando</h3>
+        <p>Pesquisar, baixar, adaptar, imprimir... até ficar pronto, a tarde já acabou.</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-card-icon">🔁</span>
+        <h3>Sempre as mesmas atividades</h3>
+        <p>Seu filho já decorou o caderno de exercícios. Agora não quer mais fazer.</p>
+      </div>
+    </div>
+
+    <div class="pain-bridge">
+      <p>
+        O problema nunca foi falta de vontade.<br>
+        Foi falta de <strong>uma ferramenta simples</strong> que fizesse o trabalho pesado por você.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SOLUTION ════ -->
+<section class="solution" id="demo">
+  <div class="solution-inner">
+    <div class="solution-header reveal">
+      <span class="section-label">A solução</span>
+      <h2>AtivaMente Kids — da ideia à atividade impressa em menos de 2 minutos</h2>
+      <p>10 geradores de atividades educativas. Sem instalar nada. Basta abrir no navegador, personalizar e imprimir.</p>
+    </div>
+
+    <div class="steps reveal">
+      <div class="step">
+        <span class="step-num">01</span>
+        <h3>Abre no computador</h3>
+        <p>Acesse pelo navegador, sem instalar nada. Funciona em qualquer computador ou notebook.</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <h3>Personaliza em segundos</h3>
+        <p>Escolha o tipo de atividade, dificuldade, idioma e conteúdo. Tudo com poucos cliques.</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <h3>Imprime e usa</h3>
+        <p>Imprima quantas vezes quiser. Em casa, na escola, no consultório — onde precisar.</p>
+      </div>
+    </div>
+
+    <!-- Vídeo demonstrativo -->
+    <div class="reveal" style="border-radius:24px;overflow:hidden;margin-bottom:80px;position:relative;box-shadow:0 24px 80px rgba(26,18,8,0.2);">
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+        <iframe
+          width="560" height="315"
+          src="https://www.youtube.com/embed/Hilvhf_LeNE?si=WuziEXe3J4P-ug8C"
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ TESTIMONIALS ════ -->
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <h2>O que as famílias estão dizendo</h2>
+    <div class="testi-grid">
+
+      <div class="testi-card testi-card-featured reveal">
+        <div class="testi-verified">✓ Compra verificada</div>
+        <div class="testi-stars">
+          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        </div>
+        <p>"Minha filha de 6 anos adora quando apareço com uma folhinha nova. Ela nem percebe que está estudando. Uso toda semana e nunca repito a mesma atividade."</p>
+        <div class="testi-author">
+          <div class="testi-avatar testi-avatar-a">A</div>
+          <div>
+            <div class="testi-name">Ana Paula M.</div>
+            <div class="testi-role">Mãe de Letícia, 6 anos — São Paulo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-verified">✓ Compra verificada</div>
+        <div class="testi-stars">
+          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        </div>
+        <p>"Sou professora e uso para complementar as aulas. Em 2 minutos consigo uma atividade personalizada para o conteúdo que estou dando. Vale muito mais do que o preço."</p>
+        <div class="testi-author">
+          <div class="testi-avatar testi-avatar-c">C</div>
+          <div>
+            <div class="testi-name">Carla Souza</div>
+            <div class="testi-role">Professora do 2º ano — Belo Horizonte</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div class="testi-verified">✓ Compra verificada</div>
+        <div class="testi-stars">
+          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        </div>
+        <p>"Atendo crianças com dificuldades de aprendizagem e o AtivaMente Kids virou parte do meu arsenal. Consigo criar atividades no nível certo de cada paciente em minutos. Economizo horas de preparação toda semana."</p>
+        <div class="testi-author">
+          <div class="testi-avatar testi-avatar-r">R</div>
+          <div>
+            <div class="testi-name">Renata F.</div>
+            <div class="testi-role">Psicopedagoga — Curitiba</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════ GENERATORS ════ -->
+<section class="generators">
+  <div class="generators-inner">
+    <div class="generators-header reveal">
+      <span class="section-label">O que está incluído</span>
+      <h2>10 geradores de atividades — tudo por um preço único</h2>
+      <p>Cada gerador cria variações infinitas. Nunca mais você vai repetir a mesma atividade.</p>
+    </div>
+
+    <div class="gen-grid reveal">
+      <div class="gen-item">
+        <span class="gen-item-icon">🔢</span>
+        <div class="gen-item-name">Gerador de Matemática</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">✏️</span>
+        <div class="gen-item-name">Gerador de Traçado</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">📝</span>
+        <div class="gen-item-name">Palavras Cruzadas</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">🔍</span>
+        <div class="gen-item-name">Caça-Palavras</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">🌀</span>
+        <div class="gen-item-name">Labirintos</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">🔷</span>
+        <div class="gen-item-name">Atividades com Formas</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">🕐</span>
+        <div class="gen-item-name">Que Horas São?</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">✋</span>
+        <div class="gen-item-name">Coordenação Motora</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">📊</span>
+        <div class="gen-item-name">Gerador de Sequências</div>
+      </div>
+      <div class="gen-item">
+        <span class="gen-item-icon">👁️</span>
+        <div class="gen-item-name">Atividades Visuais</div>
+      </div>
+    </div>
+
+    <div class="gen-bonus reveal">
+      <span class="gen-bonus-icon">🏆</span>
+      <div>
+        <span class="bonus-tag">Bônus Exclusivo</span>
+        <h3>Certificados de Conquistas Personalizados</h3>
+        <p>Reconheça o esforço do seu filho com certificados para imprimir e personalizar. Um detalhe pequeno que faz enorme diferença na motivação da criança.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ BENEFITS ════ -->
+<section class="benefits">
+  <div class="benefits-inner">
+    <div class="benefits-text reveal">
+      <h2>Por que funciona melhor do que comprar apostilas?</h2>
+      <div class="benefit-list">
+        <div class="benefit">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Atividade nova toda vez</h4>
+            <p>Uma apostila acaba em semanas. Aqui você gera atividades diferentes todos os dias, por meses, sem repetição.</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Personalizado para seu filho</h4>
+            <p>Ajuste a dificuldade e o conteúdo para o nível atual da criança — não para uma turma genérica.</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Pronto em 2 minutos</h4>
+            <p>Sem pesquisar, sem editar, sem formatar. Abre, clica, imprime. Simples assim.</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-check">✓</div>
+          <div>
+            <h4>Paga uma vez, usa para sempre</h4>
+            <p>Sem mensalidade, sem assinatura. R$29 e acesso vitalício com todas as atualizações incluídas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="benefits-visual reveal">
+      <div class="bv-card">
+        <span class="bv-num">∞</span>
+        <span class="bv-label">atividades diferentes para gerar</span>
+      </div>
+      <div class="bv-card">
+        <span class="bv-num" style="color:var(--amber)">2min</span>
+        <span class="bv-label" style="color:var(--gray)">para criar uma atividade completa</span>
+      </div>
+      <div class="bv-card">
+        <span class="bv-num" style="color:var(--amber)">R$0</span>
+        <span class="bv-label" style="color:var(--gray)">de mensalidade depois</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ FOR WHO ════ -->
+<section class="for-who">
+  <div class="for-who-inner reveal">
+    <h2>Para quem é o AtivaMente Kids?</h2>
+    <p class="for-who-sub">Se você tem crianças de 4 a 10 anos na sua vida, este produto é para você.</p>
+
+    <div class="for-who-cards">
+      <div class="fwc">
+        <span class="fwc-icon">👩‍👧</span>
+        <h3>Pais e mães</h3>
+        <p>Que querem alternativas ao tablet e atividades educativas prontas para usar em casa nos finais de semana e férias.</p>
+      </div>
+      <div class="fwc">
+        <span class="fwc-icon">🍎</span>
+        <h3>Professores</h3>
+        <p>Que precisam de material extra para sala de aula e não têm tempo de preparar tudo do zero toda semana.</p>
+      </div>
+      <div class="fwc">
+        <span class="fwc-icon">🧠</span>
+        <h3>Psicopedagogas</h3>
+        <p>Que atendem crianças com dificuldades de aprendizagem e precisam de atividades personalizadas para cada paciente — sem gastar horas preparando material.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ COMPARISON ════ -->
+<section class="comparison">
+  <div class="comparison-inner reveal">
+    <h2>Por que o AtivaMente Kids<br>é diferente de tudo que você já viu?</h2>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Recurso</th>
+          <th class="col-ativamente">✦ AtivaMente Kids</th>
+          <th class="col-outros">Apostilas / Apps</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Atividades ilimitadas</td>
+          <td class="col-ativamente">✓</td>
+          <td class="col-outros">✗</td>
+        </tr>
+        <tr>
+          <td>Personalizado por criança</td>
+          <td class="col-ativamente">✓</td>
+          <td class="col-outros">✗</td>
+        </tr>
+        <tr>
+          <td>Pagamento único — sem mensalidade</td>
+          <td class="col-ativamente">✓</td>
+          <td class="col-outros">✗</td>
+        </tr>
+        <tr>
+          <td>Funciona sem internet após o acesso</td>
+          <td class="col-ativamente">✓</td>
+          <td class="col-outros">✗</td>
+        </tr>
+        <tr>
+          <td>Pronto para imprimir em 2 minutos</td>
+          <td class="col-ativamente">✓</td>
+          <td class="col-outros">✗</td>
+        </tr>
+        <tr>
+          <td>Atualizações incluídas para sempre</td>
+          <td class="col-ativamente">✓</td>
+          <td class="col-outros">✗</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════ PRICING ════ -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner reveal">
+    <h2>Acesso vitalício.<br>Investimento único.</h2>
+    <p class="pricing-sub">
+      Uma apostila de atividades em livraria custa entre R$40–80 e acaba em semanas.<br>
+      Com o AtivaMente Kids, você gera atividades novas para sempre.
+    </p>
+
+    <div class="price-card">
+      <div class="price-label">✦ Oferta especial — Acesso completo</div>
+
+      <p class="price-anchor">De <s>R$ 97</s> por apenas</p>
+
+      <div class="price-main">
+        <span class="price-currency">R$</span>
+        <span class="price-value">29</span>
+      </div>
+
+      <p class="price-once">pagamento único — sem mensalidade</p>
+
+      <ul class="price-features">
+        <li><span class="pf-check">✓</span> Acesso vitalício a todos os 10 geradores</li>
+        <li><span class="pf-check">✓</span> Atividades ilimitadas para imprimir</li>
+        <li><span class="pf-check">✓</span> Atualizações futuras incluídas sem custo extra</li>
+        <li><span class="pf-check">✓</span> Funciona pelo navegador — sem instalação</li>
+        <li><span class="pf-check">✓</span> <strong>Bônus:</strong> Certificados de Conquistas personalizados</li>
+        <li><span class="pf-check">✓</span> Garantia de 7 dias — dinheiro de volta sem perguntas</li>
+      </ul>
+
+      <a href="https://pay.kiwify.com.br/2tyHiBT" class="btn-cta-main cta-kiwify" target="_blank" rel="noopener">
+        ✦ Quero atividades para meu filho hoje — R$29
+      </a>
+
+      <p class="price-note">
+        <span>🔒 Pagamento seguro.</span> Você recebe o acesso imediatamente após a confirmação.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ GUARANTEE ════ -->
+<section class="guarantee">
+  <div class="guarantee-inner reveal">
+    <div class="guarantee-badge">🛡️</div>
+    <div>
+      <h3>Garantia de 7 dias — risco zero</h3>
+      <p>
+        Se por qualquer motivo você não gostar do AtivaMente Kids, basta enviar uma mensagem em até 7 dias após a compra e devolvemos 100% do seu dinheiro — sem perguntas, sem burocracia, sem complicação. Você não tem nada a perder.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ FAQ ════ -->
+<section class="faq">
+  <div class="faq-inner reveal">
+    <h2>Perguntas frequentes</h2>
+
+    <div class="faq-item open">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Precisa instalar algum programa?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">Não. Os geradores funcionam direto pelo navegador do seu computador ou notebook. É só abrir o link e usar.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Para qual faixa etária as atividades são indicadas?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">As atividades foram pensadas para crianças de 4 a 10 anos, com opções de dificuldade ajustáveis para cada fase do desenvolvimento.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Posso imprimir quantas vezes quiser?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">Sim, atividades ilimitadas. Você pode gerar e imprimir novas atividades toda semana, sem nunca repetir — por quanto tempo quiser.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Tem mensalidade ou taxa extra?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">Não. O pagamento é único, de R$29, e você tem acesso vitalício a tudo — incluindo atualizações futuras sem nenhum custo adicional.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        E se eu não gostar?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-a">Oferecemos garantia de 7 dias com 100% do dinheiro de volta. Basta entrar em contato — sem burocracia, sem perguntas.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ FINAL CTA ════ -->
+<section class="final-cta">
+  <div class="final-cta-inner reveal">
+    <h2>Sua próxima tarde pode ser<br><em>completamente diferente.</em></h2>
+    <p>
+      Em menos de 5 minutos a partir de agora, você pode ter a primeira atividade nas mãos do seu filho — sem tablet, sem stress, sem horas de preparação.
+    </p>
+    <a href="https://pay.kiwify.com.br/2tyHiBT" class="btn-primary cta-kiwify" style="display:inline-flex;" target="_blank" rel="noopener">
+      ✦ Começar agora por R$29
+    </a>
+    <p class="final-cta-note">
+      🔒 Pagamento seguro · Acesso imediato · Garantia de 7 dias
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">AtivaMente Kids</div>
+  <div class="footer-tagline">Atividades educativas em segundos — para pais, professores e psicopedagogas</div>
+  <div class="footer-links">
+    <a href="#">Política de Privacidade</a>
+    <a href="#">Termos de Uso</a>
+    <a href="mailto:contato@ativamentekids.com.br">Contato</a>
+  </div>
+  <div class="footer-copy">© 2025 AtivaMente Kids — Todos os direitos reservados</div>
+</footer>
+
+<script>
+  // ── UTM PASSTHROUGH ──────────────────────────────────────────────
+  // Captura todas as UTMs e parâmetros de rastreamento da URL atual
+  // e os repassa para todos os links da Kiwify (.cta-kiwify)
+  (function() {
+    const KIWIFY_URL = 'https://pay.kiwify.com.br/2tyHiBT';
+
+    // Parâmetros que queremos capturar e repassar
+    const TRACKED_PARAMS = [
+      'utm_source', 'utm_medium', 'utm_campaign',
+      'utm_term', 'utm_content', 'utm_id',
+      'fbclid', 'gclid', 'src', 'ref', 'affiliate_id'
+    ];
+
+    function getUTMsFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const captured = new URLSearchParams();
+      TRACKED_PARAMS.forEach(key => {
+        if (params.has(key)) captured.set(key, params.get(key));
+      });
+      return captured;
+    }
+
+    function buildKiwifyURL() {
+      const utms = getUTMsFromURL();
+      if (!utms.toString()) return KIWIFY_URL;
+      return KIWIFY_URL + '?' + utms.toString();
+    }
+
+    function updateCTALinks() {
+      const finalURL = buildKiwifyURL();
+      document.querySelectorAll('.cta-kiwify').forEach(el => {
+        el.href = finalURL;
+      });
+    }
+
+    // Roda ao carregar e também observa mudanças de hash/history
+    document.addEventListener('DOMContentLoaded', updateCTALinks);
+    window.addEventListener('popstate', updateCTALinks);
+  })();
+
+  // ── SCROLL REVEAL ────────────────────────────────────────────────
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  reveals.forEach(el => observer.observe(el));
+
+  // ── SMOOTH SCROLL (âncoras internas) ─────────────────────────────
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
