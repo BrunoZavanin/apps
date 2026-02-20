@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Coordinate Hunter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&family=Courier+Prime:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-grad-1: #2b5876;
+            --bg-grad-2: #4e4376;
+            --main-color: #2b5876;
+            --accent-color: #ffc107;
+            --text-color: #333;
+            --a4-width: 210mm;
+            --a4-height: 297mm;
+        }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { margin: 0; font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2)); display: flex; justify-content: center; min-height: 100vh; }
+
+        /* Sidebar - UI UX ENGLISH ONLY */
+        .settings-panel { width: 360px; background: rgba(0, 0, 0, 0.95); padding: 20px; height: 100vh; position: sticky; top: 0; overflow-y: auto; color: white; border-right: 1px solid rgba(255,255,255,0.1); scrollbar-width: thin; }
+        .panel-header { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; color: var(--accent-color); margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        
+        .control-group { margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 700; color: var(--accent-color); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select, input[type="text"], input[type="number"] { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; margin-bottom: 5px; font-family: 'Nunito'; font-size: 0.9rem; }
+        select:focus, input:focus { border-color: var(--accent-color); outline: none; background: #333; }
+        
+        /* Color Pickers */
+        .color-row { display: flex; gap: 10px; align-items: center; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: 40px; height: 40px; padding: 0; background: none; cursor: pointer; border-radius: 50%; overflow: hidden; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 2px solid #fff; border-radius: 50%; }
+
+        /* Sliders */
+        .slider-container { display: flex; align-items: center; gap: 10px; }
+        input[type=range] { flex-grow: 1; accent-color: var(--accent-color); cursor: pointer; }
+        .val-display { width: 30px; text-align: center; font-weight: bold; font-size: 0.9rem; }
+
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 5px; }
+        .checkbox-wrapper input { width: auto; transform: scale(1.3); accent-color: var(--accent-color); }
+
+        .btn-gen { width: 100%; padding: 12px; background: var(--accent-color); color: #000; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; font-family: 'Fredoka'; text-transform: uppercase; transition: transform 0.1s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-gen:active { transform: scale(0.98); }
+        .btn-print { width: 100%; padding: 12px; background: transparent; border: 2px solid var(--accent-color); border-radius: 8px; color: var(--accent-color); font-weight: 900; cursor: pointer; margin-top: 10px; }
+        .btn-print:hover { background: rgba(255,255,255,0.1); }
+
+        /* Worksheet Area */
+        .worksheet-wrapper { background: white; width: var(--a4-width); height: var(--a4-height); padding: 15mm; position: relative; margin: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; }
+
+        .ws-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--main-color); padding-bottom: 10px; margin-bottom: 20px; height: 10%; }
+        .ws-title { font-family: 'Fredoka'; font-size: 2.2rem; color: var(--main-color); text-transform: uppercase; line-height: 1; margin-bottom: 5px; }
+        .ws-instr { font-size: 0.9rem; color: #555; max-width: 450px; line-height: 1.3; }
+        .ws-info { text-align: right; font-size: 0.9rem; color: #444; font-weight: bold; line-height: 1.8; }
+        .ws-info span { color: var(--main-color); }
+
+        /* GRID MAP STYLES */
+        .map-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 10px;
+        }
+
+        .coord-grid {
+            display: grid;
+            border: 3px solid var(--main-color);
+            background: white;
+            /* Grid template defined in JS */
+        }
+
+        .grid-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+        
+        .header-cell {
+            background: var(--main-color);
+            color: white;
+            font-weight: bold;
+            font-family: 'Fredoka';
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* QUESTIONS SECTION */
+        .questions-area {
+            height: 25%;
+            border-top: 2px dashed #ccc;
+            padding-top: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .q-title { font-family: 'Fredoka'; font-size: 1.2rem; color: var(--main-color); margin-bottom: 10px; }
+        
+        .q-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .q-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f9f9f9;
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        
+        .q-icon { font-size: 1.8rem; }
+        .q-input {
+            border-bottom: 2px solid #ccc;
+            width: 50px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier Prime', monospace;
+            font-weight: bold;
+            color: #d00;
+            font-size: 1.2rem;
+        }
+
+        @media print {
+            body { background: white; display: block; }
+            .settings-panel { display: none; }
+            .worksheet-wrapper { margin: 0; box-shadow: none; width: 100%; height: 100vh; page-break-after: always; padding: 10mm; }
+            
+            /* FORCE CSS VARIABLES FOR PRINT COLORS */
+            .coord-grid { border-color: var(--main-color) !important; }
+            .header-cell { background: var(--main-color) !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .ws-header { border-bottom-color: var(--main-color) !important; }
+            .q-title { color: var(--main-color) !important; }
+            .q-item { border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="settings-panel">
+        <div class="panel-header">🗺️ MAP HUNTER</div>
+
+        <div class="control-group">
+            <label>1. Worksheet Language</label>
+            <select id="langSelect" onchange="updateLanguage()">
+                <option value="en" selected>🇺🇸 English</option>
+                <option value="id">🇮🇩 Indonesia</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="ms">🇲🇾 Melayu</option>
+                <option value="ar">🇸🇦 Arabic</option>
+                <option value="ja">🇯🇵 Japanese</option>
+                <option value="pt">🇧🇷 Português (BR)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>2. Text Customization</label>
+            <input type="text" id="inpTitle" value="SPORT MAP" oninput="renderText()" placeholder="Main Title">
+            <input type="text" id="inpInstr" value="Write the coordinate for each item (e.g., A-1)." oninput="renderText()" placeholder="Instructions">
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="inpName" value="Name" oninput="renderText()" placeholder="Name Label">
+                <input type="text" id="inpDate" value="Date" oninput="renderText()" placeholder="Date Label">
+            </div>
+            <input type="text" id="inpQTitle" value="FIND THE COORDINATES:" oninput="renderText()" placeholder="Question Title">
+        </div>
+
+        <div class="control-group">
+            <label>3. Map Theme</label>
+            <select id="themeSelect" onchange="generateMap()">
+                <option value="sport">⚽ Sports Equipment</option>
+                <option value="city">🏙️ City Life</option>
+                <option value="space">🚀 Space Explorer</option>
+                <option value="zoo">🦁 Zoo Animals</option>
+                <option value="garden">🌻 Secret Garden</option>
+            </select>
+
+            <div class="color-row" style="margin-top:10px;">
+                <input type="color" id="colMain" value="#2b5876" oninput="updateColors()">
+                <input type="color" id="colAcc" value="#ffc107" oninput="updateColors()">
+                <span style="font-size:0.8rem; color:#aaa;">Colors</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>4. Grid Settings</label>
+            <label style="font-weight:400;">Grid Size</label>
+            <select id="gridSize">
+                <option value="5">5 x 5 (Easy - A to E)</option>
+                <option value="6" selected>6 x 6 (Medium - A to F)</option>
+                <option value="8">8 x 8 (Hard - A to H)</option>
+            </select>
+
+            <label style="font-weight:400; margin-top:10px;">Items to Hide</label>
+            <div class="slider-container">
+                <input type="range" id="itemCount" min="4" max="12" value="8" oninput="document.getElementById('itemVal').innerText=this.value">
+                <span id="itemVal" class="val-display">8</span>
+            </div>
+
+            <label class="checkbox-wrapper" style="margin-top:15px;">
+                <input type="checkbox" id="showSolution" onchange="renderSolution()">
+                <span style="color:var(--accent-color); font-weight:bold;">Show Answer Key</span>
+            </label>
+        </div>
+
+        <button class="btn-gen" onclick="generateMap()">🎲 GENERATE MAP</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT WORKSHEET</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="worksheet-wrapper" id="wsWrapper">
+        <div class="ws-header">
+            <div>
+                <div class="ws-title" id="outTitle">SPORT MAP</div>
+                <div class="ws-instr" id="outInstr">Write the coordinate for each item (e.g., A-1).</div>
+            </div>
+            <div class="ws-info">
+                <span id="outName">Name</span>: _________________<br>
+                <span id="outDate">Date</span>: _________________
+            </div>
+        </div>
+
+        <div class="map-container" id="mapContainer">
+            </div>
+
+        <div class="questions-area">
+            <div class="q-title" id="outQTitle">FIND THE COORDINATES:</div>
+            <div class="q-grid" id="qGrid">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // DATA
+        const themes = {
+            sport: ['⚽','🏀','🏈','⚾','🎾','🏐','🎱','🏓','🏸','🥅','⛳','🎳','🎣','🥊','🛷','⛸️'],
+            city: ['🚗','🚕','🚌','🚓','🚑','🚒','🏫','🏨','🚦','🚧','🚲','🛵'],
+            space: ['🚀','🛸','🛰️','🪐','🌍','🌕','☄️','👾','🔭','⭐','👨‍🚀','📡'],
+            zoo: ['🦁','🐯','🐻','🐼','🐨','🦓','🦒','🐘','🐊','🐢','🦜','🦚'],
+            garden: ['🌻','🌹','🌷','🌲','🍄','🦋','🐝','🐞','🐌','🐛','🍓','🍎']
+        };
+
+        const translations = {
+            id: { t: "PETA KOORDINAT", i: "Tulis koordinat untuk setiap benda (Contoh: A-1).", n: "Nama", d: "Tanggal", q: "TEMUKAN KOORDINATNYA:" },
+            en: { t: "COORDINATE MAP", i: "Write the coordinate for each item (e.g., A-1).", n: "Name", d: "Date", q: "FIND THE COORDINATES:" },
+            de: { t: "KOORDINATEN KARTE", i: "Schreibe die Koordinate für jedes Bild (z.B. A-1).", n: "Name", d: "Datum", q: "FINDE DIE KOORDINATEN:" },
+            fr: { t: "CARTE DE COORDONNÉES", i: "Écrivez les coordonnées de chaque objet (ex: A-1).", n: "Nom", d: "Date", q: "TROUVEZ LES COORDONNÉES :" },
+            ms: { t: "PETA KOORDINAT", i: "Tulis koordinat untuk setiap item (cth., A-1).", n: "Nama", d: "Tarikh", q: "CARI KOORDINAT:" },
+            ar: { t: "خريطة الإحداثيات", i: "اكتب الإحداثيات لكل عنصر (مثال: A-1).", n: "الاسم", d: "التاريخ", q: "ابحث عن الإحداثيات:" },
+            ja: { t: "座標マップ", i: "各アイテムの座標を書いてください (例: A-1)。", n: "名前", d: "日付", q: "座標を見つけよう:" },
+            pt: { t: "MAPA DE COORDENADAS", i: "Escreva a coordenada de cada item (ex.: A-1).", n: "Nome", d: "Data", q: "ENCONTRE AS COORDENADAS:" }
+        };
+
+        // GLOBAL STATE
+        let placedItems = []; 
+
+        function updateColors() {
+            const main = document.getElementById('colMain').value;
+            const acc = document.getElementById('colAcc').value;
+            const root = document.documentElement;
+            root.style.setProperty('--main-color', main);
+            root.style.setProperty('--accent-color', acc);
+        }
+
+        function updateLanguage() {
+            const lang = document.getElementById('langSelect').value;
+            const data = translations[lang] || translations['en'];
+            
+            document.getElementById('inpTitle').value = data.t;
+            document.getElementById('inpInstr').value = data.i;
+            document.getElementById('inpName').value = data.n;
+            document.getElementById('inpDate').value = data.d; // Update Date Input
+            document.getElementById('inpQTitle').value = data.q;
+            
+            renderText();
+        }
+
+        function renderText() {
+            document.getElementById('outTitle').innerText = document.getElementById('inpTitle').value;
+            document.getElementById('outInstr').innerText = document.getElementById('inpInstr').value;
+            document.getElementById('outName').innerText = document.getElementById('inpName').value;
+            document.getElementById('outDate').innerText = document.getElementById('inpDate').value; // Render Date
+            document.getElementById('outQTitle').innerText = document.getElementById('inpQTitle').value;
+        }
+
+        function generateMap() {
+            const gridSize = parseInt(document.getElementById('gridSize').value);
+            const itemCount = parseInt(document.getElementById('itemCount').value);
+            const themeKey = document.getElementById('themeSelect').value;
+            const icons = [...themes[themeKey]];
+            
+            const container = document.getElementById('mapContainer');
+            container.innerHTML = '';
+
+            // Sizing Logic for cleaner grid
+            let cellSize, fontSize;
+            if (gridSize === 5) {
+                cellSize = '80px';
+                fontSize = '3rem';
+            } else if (gridSize === 6) {
+                cellSize = '70px';
+                fontSize = '2.5rem';
+            } else { // 8x8
+                cellSize = '55px';
+                fontSize = '2rem';
+            }
+
+            // Create Grid Layout
+            const gridEl = document.createElement('div');
+            gridEl.className = 'coord-grid';
+            
+            // Header col width slightly smaller than cells usually, but let's keep consistent for simplicity
+            // But usually the row-label column is thinner. Let's make it 40px fixed for neatness.
+            const headerSize = '40px'; 
+            
+            gridEl.style.gridTemplateColumns = `${headerSize} repeat(${gridSize}, ${cellSize})`;
+            gridEl.style.gridTemplateRows = `${headerSize} repeat(${gridSize}, ${cellSize})`;
+
+            // 2. Prepare Data
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+            const numbers = Array.from({length: gridSize}, (_, i) => i + 1);
+            
+            // Select random icons to place
+            icons.sort(() => 0.5 - Math.random());
+            const selectedIcons = icons.slice(0, itemCount);
+            
+            // Generate Random Positions (Unique)
+            let positions = new Set();
+            placedItems = [];
+
+            while (placedItems.length < itemCount) {
+                const r = Math.floor(Math.random() * gridSize) + 1; 
+                const c = Math.floor(Math.random() * gridSize);     
+                const key = `${r},${c}`;
+                
+                if (!positions.has(key)) {
+                    positions.add(key);
+                    const icon = selectedIcons[placedItems.length];
+                    const letter = letters[c];
+                    const number = r;
+                    
+                    placedItems.push({
+                        icon: icon,
+                        coord: `${letter}-${number}`,
+                        r: r, 
+                        c: c 
+                    });
+                }
+            }
+
+            // 3. Render Header Row (Empty, A, B, C...)
+            gridEl.innerHTML += `<div class="header-cell" style="background:#222;"></div>`;
+            for (let i = 0; i < gridSize; i++) {
+                gridEl.innerHTML += `<div class="header-cell">${letters[i]}</div>`;
+            }
+
+            // 4. Render Rows
+            let placementMap = {};
+            placedItems.forEach(item => {
+                placementMap[`${item.r},${item.c}`] = item.icon;
+            });
+
+            for (let r = 1; r <= gridSize; r++) {
+                // Row Label
+                gridEl.innerHTML += `<div class="header-cell">${r}</div>`;
+                
+                // Cells
+                for (let c = 0; c < gridSize; c++) {
+                    const key = `${r},${c}`;
+                    const icon = placementMap[key] || '';
+                    gridEl.innerHTML += `<div class="grid-cell" style="font-size:${fontSize};">${icon}</div>`;
+                }
+            }
+
+            container.appendChild(gridEl);
+
+            // 5. Render Questions
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const qGrid = document.getElementById('qGrid');
+            qGrid.innerHTML = '';
+            
+            placedItems.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'q-item';
+                itemEl.innerHTML = `
+                    <div class="q-icon">${item.icon}</div>
+                    <div class="q-input" data-ans="${item.coord}"></div>
+                `;
+                qGrid.appendChild(itemEl);
+            });
+            
+            renderSolution();
+        }
+
+        function renderSolution() {
+            const show = document.getElementById('showSolution').checked;
+            const inputs = document.querySelectorAll('.q-input');
+            
+            inputs.forEach(inp => {
+                if (show) {
+                    inp.innerText = inp.getAttribute('data-ans');
+                } else {
+                    inp.innerText = '';
+                }
+            });
+        }
+
+        // Init
+        window.onload = () => {
+            updateColors();
+            updateLanguage();
+            generateMap();
+        }
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+function saveAsImage() {
+    const target = document.getElementById("wsWrapper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "coordinate-hunter-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+
+</body>
+</html>

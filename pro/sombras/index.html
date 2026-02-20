@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Shadow Match</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default Theme: Sky Blue */
+            --primary: #54a0ff;
+            --secondary: #2e86de;
+            --accent: #feca57;
+            --bg-color: #c8d6e5;
+            --header-bg: #48dbfb;
+            --header-border: #0abde3;
+            --card-bg: white;
+            --shadow-color: #b2bec3;
+            --a4-width: 210mm;
+            --a4-height: 297mm;
+        }
+
+        /* THEMES */
+        [data-theme="sunset"] { --primary: #ff6b6b; --secondary: #ee5253; --accent: #feca57; --bg-color: #ffcccc; --header-bg: #ff9f43; --header-border: #e67e22; }
+        [data-theme="forest"] { --primary: #1dd1a1; --secondary: #10ac84; --accent: #f368e0; --bg-color: #c8f7dc; --header-bg: #55efc4; --header-border: #00b894; }
+        [data-theme="candy"] { --primary: #ff9ff3; --secondary: #f368e0; --accent: #54a0ff; --bg-color: #fce4ec; --header-bg: #fd79a8; --header-border: #e84393; }
+        [data-theme="space"] { --primary: #5f27cd; --secondary: #341f97; --accent: #00d2d3; --bg-color: #c8d6e5; --header-bg: #5f27cd; --header-border: #341f97; --card-bg: #f5f6fa; }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { margin: 0; font-family: 'Nunito', sans-serif; background: var(--bg-color); display: flex; justify-content: center; min-height: 100vh; transition: background 0.3s; }
+
+        /* SIDEBAR */
+        .settings-panel { width: 350px; background: rgba(30, 39, 46, 0.98); padding: 20px; height: 100vh; position: sticky; top: 0; overflow-y: auto; color: white; border-right: 1px solid rgba(255,255,255,0.1); scrollbar-width: thin; z-index: 10; }
+        .panel-header { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; color: var(--accent); margin-bottom: 20px; text-align: center; text-transform: uppercase; border-bottom: 1px solid #576574; padding-bottom: 10px; letter-spacing: 1px; }
+        
+        .control-group { margin-bottom: 15px; border-bottom: 1px dashed #576574; padding-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: 700; color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select, input[type="text"], input[type="number"] { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #576574; background: #2f3640; color: white; margin-bottom: 5px; font-family: 'Nunito'; font-weight: 600; }
+        select:focus, input:focus { border-color: var(--accent); outline: none; }
+
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 10px; }
+        .checkbox-wrapper input { width: auto; transform: scale(1.3); accent-color: var(--primary); }
+
+        .btn-gen { width: 100%; padding: 12px; background: var(--secondary); color: #fff; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; margin-top: 10px; font-family: 'Fredoka'; text-transform: uppercase; transition: transform 0.1s; box-shadow: 0 4px 0px rgba(0,0,0,0.3); }
+        .btn-gen:active { transform: translateY(4px); box-shadow: none; }
+        .btn-print { width: 100%; padding: 12px; background: transparent; border: 2px solid var(--primary); border-radius: 12px; color: var(--primary); font-weight: 900; cursor: pointer; margin-top: 10px; }
+
+        /* WORKSHEET CONTAINER */
+        .worksheet-wrapper { 
+            background: white; width: var(--a4-width); height: var(--a4-height); 
+            position: relative; margin: 20px; box-shadow: 0 0 50px rgba(0,0,0,0.15); 
+            display: flex; flex-direction: column; overflow: hidden; 
+        }
+
+        /* HEADER (3D Style) */
+        .ws-header {
+            background: var(--header-bg);
+            padding: 20px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 5px solid var(--header-border);
+            position: relative;
+            transition: background 0.3s;
+        }
+        .ws-header::before {
+            content: ""; position: absolute; bottom: -10px; left: 0; width: 100%; height: 20px;
+            background: radial-gradient(circle, white 10px, transparent 11px);
+            background-size: 20px 20px;
+            background-position: center bottom;
+        }
+
+        .header-text h1 { font-family: 'Fredoka'; font-size: 2.8rem; color: white; margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); -webkit-text-stroke: 1px var(--header-border); }
+        .header-text div { font-family: 'Nunito'; font-weight: 800; color: #fff; font-size: 1.1rem; letter-spacing: 1px; opacity: 0.9; }
+        
+        .header-info { text-align: right; background: white; padding: 10px 15px; border-radius: 15px; border: 3px solid var(--header-border); font-family: 'Fredoka'; color: var(--header-border); }
+
+        /* GAME AREA */
+        .game-container {
+            flex-grow: 1; padding: 30px 40px;
+            display: flex; justify-content: space-between;
+            background-image: radial-gradient(#f1f2f6 15%, transparent 16%);
+            background-size: 20px 20px;
+        }
+
+        .column {
+            width: 40%;
+            display: flex; flex-direction: column;
+            justify-content: space-around; /* Distribute vertically */
+            align-items: center;
+        }
+
+        /* 3D CARD ITEMS */
+        .game-card {
+            width: 100%; height: 90px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px;
+            margin-bottom: 15px;
+            border: 3px solid #ccc;
+            box-shadow: 0 6px 0px var(--shadow-color); /* 3D effect */
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        /* Color variations for left column */
+        .left-col .game-card:nth-child(4n+1) { border-color: #ff9ff3; box-shadow: 0 6px 0 #f368e0; background: #fff0f6; }
+        .left-col .game-card:nth-child(4n+2) { border-color: #feca57; box-shadow: 0 6px 0 #ff9f43; background: #fefce8; }
+        .left-col .game-card:nth-child(4n+3) { border-color: #54a0ff; box-shadow: 0 6px 0 #2e86de; background: #f0f8ff; }
+        .left-col .game-card:nth-child(4n+4) { border-color: #1dd1a1; box-shadow: 0 6px 0 #10ac84; background: #eafff8; }
+
+        /* Shadow items (Right Column) - Neutral */
+        .right-col .game-card { 
+            border-color: #a4b0be; box-shadow: 0 6px 0 #747d8c; background: #f1f2f6; 
+            flex-direction: row-reverse; /* Flip dot position */
+        }
+
+        .item-icon { font-size: 3.5rem; line-height: 1; }
+        
+        .dot {
+            width: 35px; height: 35px; border-radius: 50%;
+            background: white; border: 4px solid #576574;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Fredoka'; font-weight: bold; color: #576574; font-size: 1.1rem;
+            z-index: 2;
+        }
+        
+        .shadow-fx { filter: brightness(0) opacity(0.85); }
+
+        .show-ans .dot { background: var(--accent); color: black; border-color: black; }
+        .hide-ans .dot span { display: none; } 
+
+        .ws-footer {
+            text-align: center; padding: 10px; font-size: 0.8rem; color: #888; font-family: 'Nunito'; font-weight: 700;
+            background: white; position: absolute; bottom: 0; width: 100%; border-top: 2px dashed #eee;
+        }
+
+        @media print {
+            body { background: white; display: block; }
+            .settings-panel { display: none; }
+            .worksheet-wrapper { margin: 0; box-shadow: none; width: 100%; height: 100vh; page-break-after: always; padding: 0; }
+            .ws-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .shadow-fx { filter: brightness(0) !important; -webkit-print-color-adjust: exact; }
+            .game-card { break-inside: avoid; box-shadow: none !important; border-bottom-width: 3px !important; }
+            @page { margin: 0; }
+            .worksheet-wrapper { padding: 0mm; } 
+        }
+    </style>
+</head>
+<body class="hide-ans" data-theme="blue">
+
+    <div class="settings-panel">
+        <div class="panel-header">🌑 SHADOW MATCH</div>
+
+        <div class="control-group">
+            <label>1. Language (10+)</label>
+            <select id="langSelect" onchange="updateLang()">
+                <option value="en" selected>🇺🇸 English</option>
+                <option value="id">🇮🇩 Indonesia</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="nl">🇳🇱 Nederlands</option>
+                <option value="ru">🇷🇺 Russian</option>
+                <option value="ja">🇯🇵 Japanese</option>
+                <option value="ko">🇰🇷 Korean</option>
+                <option value="ar">🇸🇦 Arabic</option>
+                <option value="tr">🇹🇷 Turkish</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>2. Color Scheme</label>
+            <select id="themeSelect" onchange="updateTheme()">
+                <option value="blue">☁️ Sky Blue</option>
+                <option value="sunset">🌅 Sunset Orange</option>
+                <option value="forest">🌲 Forest Green</option>
+                <option value="candy">🍬 Candy Pink</option>
+                <option value="space">🌌 Dark Space</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>3. Content</label>
+            <select id="categorySelect" onchange="generateGame()">
+                <option value="toys">🧸 Toys (Distinct Shapes)</option>
+                <option value="fruit">🍎 Fruits & Veg</option>
+                <option value="vehicles">🚗 Vehicles</option>
+                <option value="animals">🦁 Zoo Animals</option>
+                <option value="random">🎲 Mixed / Random</option>
+            </select>
+            
+            <label style="margin-top:10px; font-weight:400;">Items per Page</label>
+            <select id="pairCount" onchange="generateGame()">
+                <option value="4">4 Pairs (Big - Toddler)</option>
+                <option value="5" selected>5 Pairs (Medium)</option>
+                <option value="6">6 Pairs (Standard)</option>
+                <option value="8">8 Pairs (Small)</option>
+            </select>
+
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="showSolution" onchange="renderText()">
+                <span>Show Answer Key</span>
+            </label>
+        </div>
+
+        <div class="control-group">
+            <label>4. Custom Text</label>
+            <input type="text" id="inpTitle" value="SHADOW MATCH" oninput="renderText()">
+            <input type="text" id="inpSubtitle" value="Find the correct shadow!" oninput="renderText()">
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="inpName" value="Name" oninput="renderText()">
+                <input type="text" id="inpDate" value="Date" oninput="renderText()">
+            </div>
+            <input type="text" id="footerText" value="Generated with KidzPaper" oninput="renderText()">
+        </div>
+
+        <button class="btn-gen" onclick="generateGame()">🎲 STRICT SHUFFLE</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT</button>
+	<button class="btn-print" onclick="window.print()">💾 SAVE AS PDF</button>
+<div style="font-size:11px; color:#94A3B8; text-align:center; margin-top:6px; line-height:1.4;">
+ 
+Due to browser rendering limitations, this worksheet is exported as a PDF to ensure shadows and visual details display correctly.
+When the print dialog appears, please change the destination to Save as PDF instead of selecting a printer.
+
+</div>
+
+
+    </div>
+
+    <div class="worksheet-wrapper">
+        <div class="ws-header">
+            <div class="header-text">
+                <h1 id="outTitle">SHADOW MATCH</h1>
+                <div id="outSubtitle">Find the correct shadow!</div>
+            </div>
+            <div class="header-info">
+                <span id="outName">Name</span>: __________<br>
+                <span id="outDate">Date</span>: __________
+            </div>
+        </div>
+
+        <div class="game-container">
+            <div class="column left-col" id="colLeft"></div>
+            
+            <div style="width: 50px;"></div>
+
+            <div class="column right-col" id="colRight"></div>
+        </div>
+
+        <div class="ws-footer" id="outFooter">Generated with OrbitLogic</div>
+    </div>
+
+    <script>
+        // --- DATA (DISTINCT SHAPES) ---
+        const data = {
+            toys: ['🧸','🚗','🚂','🪁','👾','🚀','🚤','🦖','🦄','🧱','🤖','🥁','🛴','🚁'],
+            vehicles: ['🚗','🚕','🚌','🚑','🚒','🚜','🛴','🚂','🚀','🛸','🚁','🚤','🛳️','🚧'],
+            animals: ['🦁','🐯','🐻','🐨','🐰','🦊','🐮','🐸','🐵','🐔','🐧','🦅','🦉','🦇','🐺','🐴'],
+            fruit: ['🍎','🍐','🍌','🍇','🍓','🍍','🍒','🌽','🥕','🥦','🍆','🍄']
+        };
+
+        const translations = {
+            en: { t: "SHADOW MATCH", s: "Find the correct shadow!", n: "Name", d: "Date" },
+            id: { t: "COCOK BAYANGAN", s: "Temukan bayangan yang tepat!", n: "Nama", d: "Tanggal" },
+            de: { t: "SCHATTENSPIEL", s: "Finde den richtigen Schatten!", n: "Name", d: "Datum" },
+            fr: { t: "OMBRES CHINOISES", s: "Trouvez la bonne ombre!", n: "Nom", d: "Date" },
+            es: { t: "SOMBRAS", s: "¡Encuentra la sombra correcta!", n: "Nombre", d: "Fecha" },
+            it: { t: "LE OMBRE", s: "Trova l'ombra corretta!", n: "Nome", d: "Data" },
+            pt: { t: "SOMBRAS", s: "Encontre a sombra correta!", n: "Nome", d: "Data" },
+            nl: { t: "SCHADUW SPEL", s: "Vind de juiste schaduw!", n: "Naam", d: "Datum" },
+            ru: { t: "НАЙДИ ТЕНЬ", s: "Найди правильную тень!", n: "Имя", d: "Дата" },
+            ja: { t: "影絵合わせ", s: "正しい影を見つけよう！", n: "名前", d: "日付" },
+            ko: { t: "그림자 찾기", s: "올바른 그림자를 찾으세요!", n: "이름", d: "날짜" },
+            ar: { t: "تطابق الظل", s: "تجد الظل الصحيح!", n: "الاسم", d: "التاريخ" },
+            tr: { t: "GÖLGE EŞLEŞTİRME", s: "Doğru gölgeyi bul!", n: "İsim", d: "Tarih" }
+        };
+
+        let gameState = { leftItems: [], rightItems: [] };
+
+        function updateTheme() { document.body.setAttribute('data-theme', document.getElementById('themeSelect').value); }
+        function updateLang() {
+            const lang = document.getElementById('langSelect').value;
+            const t = translations[lang];
+            document.getElementById('inpTitle').value = t.t;
+            document.getElementById('inpSubtitle').value = t.s;
+            document.getElementById('inpName').value = t.n;
+            document.getElementById('inpDate').value = t.d;
+            renderText();
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[currentIndex], array[randomIndex]];
+            }
+            return array;
+        }
+
+        // --- DERANGEMENT SHUFFLE LOGIC ---
+        // This function guarantees that right[i] !== left[i]
+        function getDerangement(originalArray) {
+            let shuffled = [...originalArray];
+            let n = shuffled.length;
+            let valid = false;
+            let attempts = 0;
+
+            // Brute force shuffle until condition met (Valid for small N like 4-8)
+            while (!valid && attempts < 500) {
+                // Fisher-Yates shuffle
+                for (let i = n - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+
+                // Check collision
+                let collision = false;
+                for (let i = 0; i < n; i++) {
+                    // Compare IDs. If any item is in the same slot as original, FAIL.
+                    if (shuffled[i].id === originalArray[i].id) {
+                        collision = true;
+                        break;
+                    }
+                }
+
+                if (!collision) valid = true;
+                attempts++;
+            }
+            return shuffled;
+        }
+
+        function generateGame() {
+            const count = parseInt(document.getElementById('pairCount').value);
+            const catKey = document.getElementById('categorySelect').value;
+            let pool = (catKey === 'random') 
+                ? [...data.toys, ...data.animals, ...data.fruit, ...data.vehicles] 
+                : [...data[catKey]];
+
+            shuffle(pool);
+            const selectedIcons = pool.slice(0, count);
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            // Create Left Items (Ordered)
+            gameState.leftItems = selectedIcons.map((icon, index) => ({
+                icon: icon, id: letters[index]
+            }));
+
+            // Create Right Items (Strictly Deranged)
+            // We pass the left items to be shuffled such that no item stays in place
+            gameState.rightItems = getDerangement(gameState.leftItems);
+
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const leftContainer = document.getElementById('colLeft');
+            const rightContainer = document.getElementById('colRight');
+            leftContainer.innerHTML = '';
+            rightContainer.innerHTML = '';
+
+            const count = parseInt(document.getElementById('pairCount').value);
+            let heightStyle = count >= 6 ? (count >= 8 ? "70px" : "80px") : "90px";
+            let fontStyle = count >= 6 ? (count >= 8 ? "2.5rem" : "3rem") : "3.5rem";
+
+            gameState.leftItems.forEach(item => {
+                leftContainer.innerHTML += `
+                    <div class="game-card" style="height:${heightStyle}">
+                        <div class="item-icon" style="font-size:${fontStyle}">${item.icon}</div>
+                        <div class="dot"><span>${item.id}</span></div>
+                    </div>`;
+            });
+
+            gameState.rightItems.forEach(item => {
+                rightContainer.innerHTML += `
+                    <div class="game-card" style="height:${heightStyle}">
+                        <div class="item-icon shadow-fx" style="font-size:${fontStyle}">${item.icon}</div>
+                        <div class="dot"><span>${item.id}</span></div>
+                    </div>`;
+            });
+        }
+
+        function renderText() {
+            document.getElementById('outTitle').innerText = document.getElementById('inpTitle').value;
+            document.getElementById('outSubtitle').innerText = document.getElementById('inpSubtitle').value;
+            document.getElementById('outName').innerText = document.getElementById('inpName').value;
+            document.getElementById('outDate').innerText = document.getElementById('inpDate').value;
+            document.getElementById('outFooter').innerText = document.getElementById('footerText').value;
+
+            const showSolution = document.getElementById('showSolution').checked;
+            if(showSolution) {
+                document.body.classList.remove('hide-ans');
+                document.body.classList.add('show-ans');
+            } else {
+                document.body.classList.add('hide-ans');
+                document.body.classList.remove('show-ans');
+            }
+        }
+
+        window.onload = () => { updateLang(); generateGame(); };
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+function saveAsImage() {
+    const target = document.querySelector(".worksheet-wrapper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        backgroundColor: "#ffffff",
+        onclone: (doc) => {
+            // FORCE emoji silhouette (shape preserved)
+            doc.querySelectorAll('.shadow-fx').forEach(el => {
+                el.style.color = 'transparent';
+                el.style.textShadow = '0 0 0 #000';
+                el.style.filter = 'none';
+            });
+        }
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "shadow-match-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+
+</body>
+</html>

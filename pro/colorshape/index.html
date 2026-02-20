@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Color By Shape</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&family=Balsamiq+Sans:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Dynamic Theme Variables */
+            --primary: #ff6b6b;
+            --secondary: #54a0ff;
+            --bg-paper: #ffffff;
+            --grid-border: #2d3436;
+            --text-main: #2d3436;
+            --accent: #feca57;
+        }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        
+        body {
+            margin: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: #dfe6e9;
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 360px;
+            background: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            z-index: 20;
+            border-right: 1px solid #ccc;
+            flex-shrink: 0;
+        }
+
+        h2 { margin: 0; font-family: 'Balsamiq Sans', cursive; color: var(--primary); font-size: 1.8rem; border-bottom: 3px dashed #eee; padding-bottom: 10px; text-align: center; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 5px; }
+        label { font-weight: 800; font-size: 0.75rem; color: #636e72; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select, input, button {
+            width: 100%; padding: 10px; border: 2px solid #dfe6e9; border-radius: 10px;
+            font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.2s; cursor: pointer;
+        }
+        select:focus, input:focus { border-color: var(--primary); background: #fff; }
+
+        /* Color Buttons */
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .color-btn {
+            width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid white; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s;
+        }
+        .color-btn.active { box-shadow: 0 0 0 3px var(--text-main); transform: scale(1.1); }
+
+        /* Editor Box */
+        .editor-box { background: #f1f2f6; padding: 12px; border-radius: 12px; border: 1px solid #ced6e0; }
+        .editor-box h3 { margin: 0 0 8px 0; font-size: 0.8rem; color: #2d3436; font-weight: 900; text-transform: uppercase; }
+
+        .btn-gen { background: var(--primary); color: white; border: none; font-weight: 800; box-shadow: 0 4px 0 rgba(0,0,0,0.15); margin-top: 5px; }
+        .btn-gen:active { transform: translateY(4px); box-shadow: none; }
+        
+        .btn-toggle { background: white; border: 2px solid #b2bec3; color: #636e72; font-weight: 700; }
+        .btn-toggle.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+
+        .btn-print { background: #2d3436; color: white; border: none; font-weight: 800; margin-top: auto; padding: 15px; font-size: 1rem; border-radius: 10px; }
+
+        /* --- PREVIEW AREA --- */
+        .preview-area {
+            flex: 1;
+            background: #b2bec3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: auto;
+            padding: 40px 20px;
+        }
+
+        .paper {
+            width: 210mm;
+            height: 297mm;
+            background: var(--bg-paper);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 15mm;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transform-origin: top center;
+            flex-shrink: 0;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        /* Decoration */
+        .deco-corn { position: absolute; font-size: 3rem; opacity: 0.8; z-index: 0; }
+        .tl { top: 20px; left: 20px; transform: rotate(-15deg); }
+        .tr { top: 20px; right: 20px; transform: rotate(15deg); }
+
+        /* Header */
+        .header { 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            margin-bottom: 20px; border-bottom: 4px dashed var(--primary); padding-bottom: 15px;
+            position: relative; z-index: 2;
+        }
+        .title h1 { 
+            font-family: 'Balsamiq Sans', cursive; font-size: 3rem; margin: 0; 
+            color: var(--primary); line-height: 0.9;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+        }
+        .title p { margin: 5px 0 0; color: #636e72; font-weight: 700; font-size: 1rem; }
+        
+        .info { text-align: right; font-size: 0.9rem; color: #636e72; }
+        .info-row { display: flex; gap: 5px; justify-content: flex-end; align-items: baseline; margin-bottom: 5px; }
+        .line { border-bottom: 2px dotted #b2bec3; width: 140px; display: inline-block; text-align: center; }
+
+        /* LEGEND / KEY AREA */
+        .legend-box {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #dfe6e9;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.05);
+        }
+
+        .legend-shape { width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; }
+        .legend-shape svg { width: 100%; height: 100%; fill: none; stroke: #333; stroke-width: 3; }
+        .legend-text { font-weight: 800; font-size: 1rem; color: #2d3436; text-transform: uppercase; }
+        .legend-swatch { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ccc; }
+
+        /* GRID AREA */
+        .grid-wrapper {
+            flex: 1;
+            display: grid;
+            gap: 10px;
+            padding: 10px;
+            background: #f1f2f6;
+            border-radius: 15px;
+            border: 4px solid var(--secondary);
+            align-content: center;
+            justify-content: center;
+        }
+
+        .grid-cell {
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.05);
+        }
+
+        .shape-icon {
+            width: 75%; /* Slightly bigger */
+            height: 75%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shape-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+            stroke: #2d3436;
+            stroke-width: 3;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+
+        /* Guide Dot */
+        .guide-dot {
+            position: absolute;
+            width: 14px; height: 14px; /* Bigger dots */
+            border-radius: 50%;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            opacity: 0.9;
+            border: 1px solid rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+        .show-guide .guide-dot { display: block; }
+
+        /* Solution */
+        .show-sol .shape-icon svg { fill: var(--sol-color) !important; stroke: rgba(0,0,0,0.2); }
+
+        /* Footer */
+        .footer {
+            text-align: center; font-size: 0.8rem; color: #b2bec3; 
+            margin-top: 15px; border-top: 1px solid #eee; padding-top: 8px;
+        }
+
+        /* Editable */
+        [contenteditable] { border-bottom: 1px dashed transparent; transition: 0.2s; }
+        [contenteditable]:hover { background: rgba(255, 234, 167, 0.4); border-bottom: 1px solid var(--secondary); }
+
+        @media print {
+            body { background: white; display: block; height: auto; }
+            .sidebar { display: none; }
+            .preview-area { padding: 0; background: white; display: block; }
+            .paper { 
+                margin: 0; box-shadow: none; 
+                width: 100%; height: 100vh;
+                page-break-after: avoid; 
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🎨 Color by Shape</h2>
+
+        <div class="control-group">
+            <label>Paper Theme</label>
+            <div class="color-grid" id="colorContainer"></div>
+        </div>
+
+        <div class="editor-box">
+            <h3>📝 EDIT TEXTS</h3>
+            <div class="control-group">
+                <input type="text" id="inpTitle" value="COLOR BY SHAPE" oninput="updateText('outTitle', this.value)">
+                <input type="text" id="inpSub" value="Color the shapes to reveal the pattern!" oninput="updateText('outSub', this.value)">
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:5px;">
+                <input type="text" id="inpName" value="Name:" oninput="updateText('lblN', this.value)">
+                <input type="text" id="inpClass" value="Class:" oninput="updateText('lblC', this.value)">
+                <input type="text" id="inpDate" value="Date:" oninput="updateText('lblD', this.value)">
+            </div>
+            <div class="control-group" style="margin-top:5px;">
+                <input type="text" id="inpFooter" value="Created with KidzWorksheet" oninput="updateText('outFooter', this.value)">
+            </div>
+        </div>
+
+        <div class="control-group" style="margin-top:10px;">
+            <label>Language (12 Options)</label>
+            <select id="langSelect" onchange="changeLanguage()">
+                <option value="en">🇺🇸 English</option>
+                <option value="id">🇮🇩 Indonesia</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="nl">🇳🇱 Nederlands</option>
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="pl">🇵🇱 Polski</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="jp">🇯🇵 日本語</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Shape Set (Big & Easy)</label>
+            <select id="shapeSelect" onchange="generatePuzzle()">
+                <option value="basic">🟥 Basic (Circle, Square, Tri)</option>
+                <option value="poly">🔷 Polygon (Hex, Pent, Oct)</option>
+                <option value="gems">💎 Gems (Diamond, Jewel, Ruby)</option>
+                <option value="toys">🎈 Toys (Balloon, Ball, Kite)</option>
+                <option value="food">🍕 Food (Pizza, Melon, IceCream)</option>
+                <option value="arrows">➡️ Arrows (Up, Down, Right)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Grid Density</label>
+            <select id="sizeSelect" onchange="generatePuzzle()">
+                <option value="4x5">Easy (Big Shapes)</option>
+                <option value="5x6" selected>Medium (Standard)</option>
+                <option value="6x8">Hard (Many Shapes)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Helper</label>
+            <select id="aidSelect" onchange="toggleGuide()">
+                <option value="off">🚫 No Help</option>
+                <option value="on">✨ Show Color Dots</option>
+            </select>
+        </div>
+
+        <button class="btn-gen" onclick="generatePuzzle()">🎲 SHUFFLE PUZZLE</button>
+        <button class="btn-toggle" id="btnSol" onclick="toggleSol()">👁️ SHOW ANSWER KEY</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT PDF (A4)</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="preview-area">
+        <div class="paper" id="paper">
+            
+            <div class="deco-corn tl">✏️</div>
+            <div class="deco-corn tr">🎨</div>
+
+            <div class="header">
+                <div class="title">
+                    <h1 id="outTitle" contenteditable="true">COLOR BY SHAPE</h1>
+                    <p id="outSub" contenteditable="true">Color the shapes to reveal the pattern!</p>
+                </div>
+                <div class="info">
+                    <div class="info-row"><span class="info-label" id="lblN" contenteditable="true">Name:</span> <span class="line" contenteditable="true"></span></div>
+                    <div class="info-row"><span class="info-label" id="lblC" contenteditable="true">Class:</span> <span class="line" contenteditable="true"></span></div>
+                    <div class="info-row"><span class="info-label" id="lblD" contenteditable="true">Date:</span> <span class="line" contenteditable="true"></span></div>
+                </div>
+            </div>
+
+            <div class="legend-box" id="legendBox">
+                </div>
+
+            <div class="grid-wrapper" id="gridWrapper">
+                </div>
+
+            <div class="footer" id="outFooter" contenteditable="true">
+                Created with KidzWorksheet
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        // Colors
+        const puzzleColors = [
+            { code: '#e74c3c', names: { en:'Red', id:'Merah', es:'Rojo', fr:'Rouge', de:'Rot', it:'Rosso', pt:'Vermelho', nl:'Rood', tr:'Kırmızı', pl:'Czerwony', ru:'Красный', jp:'あか' } },
+            { code: '#3498db', names: { en:'Blue', id:'Biru', es:'Azul', fr:'Bleu', de:'Blau', it:'Blu', pt:'Azul', nl:'Blauw', tr:'Mavi', pl:'Niebieski', ru:'Синий', jp:'あお' } },
+            { code: '#f1c40f', names: { en:'Yellow', id:'Kuning', es:'Amarillo', fr:'Jaune', de:'Gelb', it:'Giallo', pt:'Amarelo', nl:'Geel', tr:'Sarı', pl:'Żółty', ru:'Желтый', jp:'きいろ' } },
+            { code: '#2ecc71', names: { en:'Green', id:'Hijau', es:'Verde', fr:'Vert', de:'Grün', it:'Verde', pt:'Verde', nl:'Groen', tr:'Yeşil', pl:'Zielony', ru:'Зеленый', jp:'みどり' } },
+            { code: '#9b59b6', names: { en:'Purple', id:'Ungu', es:'Morado', fr:'Violet', de:'Lila', it:'Viola', pt:'Roxo', nl:'Paars', tr:'Mor', pl:'Fiolet', ru:'Фиолет', jp:'むらさき' } }
+        ];
+
+        // Themes
+        const schemes = [
+            { p:'#ff6b6b', s:'#54a0ff' }, // Red/Blue
+            { p:'#20bf6b', s:'#0fb9b1' }, // Green/Teal
+            { p:'#f7b731', s:'#fa8231' }, // Orange/Yellow
+            { p:'#a55eea', s:'#8854d0' }, // Purple
+            { p:'#eb3b5a', s:'#fc5c65' }  // Pink
+        ];
+
+        // SHAPES (Weather removed)
+        const shapes = {
+            basic: [
+                { id:'circle', path:'M 50,50 m -35,0 a 35,35 0 1,0 70,0 a 35,35 0 1,0 -70,0' },
+                { id:'square', path:'M 15,15 L 85,15 L 85,85 L 15,85 Z' },
+                { id:'triangle', path:'M 50,15 L 85,85 L 15,85 Z' }
+            ],
+            poly: [
+                { id:'pentagon', path:'M 50,10 L 90,40 L 75,90 L 25,90 L 10,40 Z' },
+                { id:'hexagon', path:'M 25,10 L 75,10 L 95,50 L 75,90 L 25,90 L 5,50 Z' },
+                { id:'octagon', path:'M 30,10 L 70,10 L 90,30 L 90,70 L 70,90 L 30,90 L 10,70 L 10,30 Z' }
+            ],
+            gems: [
+                { id:'diamond', path:'M 50,5 L 90,40 L 50,95 L 10,40 Z' },
+                { id:'jewel', path:'M 25,20 L 75,20 L 95,40 L 50,95 L 5,40 Z' },
+                { id:'ruby', path:'M 20,20 L 80,20 L 80,80 L 20,80 Z M 20,20 L 80,80 M 80,20 L 20,80' } 
+            ],
+            toys: [
+                { id:'balloon', path:'M 50,5 C 20,5 10,45 50,65 C 90,45 80,5 50,5 Z M 50,65 L 50,95' }, 
+                { id:'ball', path:'M 50,50 m -40,0 a 40,40 0 1,0 80,0 a 40,40 0 1,0 -80,0 M 10,50 Q 50,20 90,50' }, 
+                { id:'kite', path:'M 50,5 L 90,40 L 50,90 L 10,40 Z M 10,40 L 90,40 M 50,5 L 50,90' } 
+            ],
+            food: [
+                { id:'pizza', path:'M 10,20 Q 50,5 90,20 L 50,95 Z' }, 
+                { id:'melon', path:'M 10,30 A 40,40 0 0,0 90,30 Z' }, 
+                { id:'icecream', path:'M 20,40 L 50,95 L 80,40 A 30,30 0 1,0 20,40' } 
+            ],
+            arrows: [
+                { id:'up', path:'M 50,10 L 80,40 L 60,40 L 60,90 L 40,90 L 40,40 L 20,40 Z' },
+                { id:'right', path:'M 90,50 L 60,20 L 60,40 L 10,40 L 10,60 L 60,60 L 60,80 Z' },
+                { id:'down', path:'M 50,90 L 80,60 L 60,60 L 60,10 L 40,10 L 40,60 L 20,60 Z' }
+            ]
+        };
+
+        const i18n = {
+            en: { t:"COLOR BY SHAPE", s:"Color the shapes to reveal the pattern!", n:"Name:", c:"Class:", d:"Date:" },
+            id: { t:"WARNAI BENTUK", s:"Warnai bentuk sesuai petunjuk!", n:"Nama:", c:"Kelas:", d:"Tgl:" },
+            es: { t:"COLOREA FORMAS", s:"¡Colorea según la forma!", n:"Nombre:", c:"Clase:", d:"Fecha:" },
+            fr: { t:"COLORIAGE", s:"Coloriez les formes!", n:"Nom:", c:"Classe:", d:"Date:" },
+            de: { t:"FORMEN MALEN", s:"Male die Formen aus!", n:"Name:", c:"Klasse:", d:"Datum:" },
+            it: { t:"COLORA FORME", s:"Colora le forme!", n:"Nome:", c:"Classe:", d:"Data:" },
+            nl: { t:"VORMEN KLEUREN", s:"Kleur de vormen in!", n:"Naam:", c:"Klas:", d:"Datum:" },
+            pt: { t:"COLORIR FORMAS", s:"Pinte as formas!", n:"Nome:", c:"Turma:", d:"Data:" },
+            tr: { t:"ŞEKİLLERİ BOYA", s:"Şekilleri boya!", n:"İsim:", c:"Sınıf:", d:"Tarih:" },
+            pl: { t:"KOLOROWE KSZTAŁTY", s:"Pokoloruj kształty!", n:"Imię:", c:"Klasa:", d:"Data:" },
+            ru: { t:"РАСКРАСЬ ФИГУРЫ", s:"Раскрась фигуры по ключу!", n:"Имя:", c:"Класс:", d:"Дата:" },
+            jp: { t:"かたちぬりえ", s:"かたちをいろわけしよう！", n:"なまえ:", c:"クラス:", d:"ひづけ:" }
+        };
+
+        let showSol = false;
+
+        // --- INIT ---
+        window.onload = () => {
+            renderColors();
+            applyScheme(0);
+            generatePuzzle();
+            adjustScale();
+            window.addEventListener('resize', adjustScale);
+        };
+
+        function adjustScale() {
+            const paper = document.getElementById('paper');
+            const preview = document.querySelector('.preview-area');
+            const scale = Math.min((preview.offsetWidth - 40) / paper.offsetWidth, 1);
+            paper.style.transform = `scale(${scale})`;
+        }
+
+        function updateText(id, val) { document.getElementById(id).innerText = val; }
+
+        function renderColors() {
+            const c = document.getElementById('colorContainer');
+            schemes.forEach((s, i) => {
+                const btn = document.createElement('div');
+                btn.className = 'color-btn';
+                btn.style.background = s.p;
+                btn.onclick = () => applyScheme(i);
+                c.appendChild(btn);
+            });
+        }
+
+        function applyScheme(idx) {
+            const s = schemes[idx];
+            const r = document.documentElement.style;
+            r.setProperty('--primary', s.p);
+            r.setProperty('--secondary', s.s);
+            document.querySelectorAll('.color-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+        }
+
+        function changeLanguage() {
+            const lang = document.getElementById('langSelect').value;
+            const d = i18n[lang];
+            document.getElementById('inpTitle').value = d.t;
+            document.getElementById('inpSub').value = d.s;
+            document.getElementById('inpName').value = d.n;
+            document.getElementById('inpClass').value = d.c;
+            document.getElementById('inpDate').value = d.d;
+            updateText('outTitle', d.t);
+            updateText('outSub', d.s);
+            updateText('lblN', d.n);
+            updateText('lblC', d.c);
+            updateText('lblD', d.d);
+            
+            generatePuzzle(true); 
+        }
+
+        function toggleGuide() {
+            const val = document.getElementById('aidSelect').value;
+            const grid = document.getElementById('gridWrapper');
+            if(val === 'on') grid.classList.add('show-guide');
+            else grid.classList.remove('show-guide');
+        }
+
+        function toggleSol() {
+            showSol = !showSol;
+            document.getElementById('btnSol').classList.toggle('active', showSol);
+            const grid = document.getElementById('gridWrapper');
+            if(showSol) grid.classList.add('show-sol');
+            else grid.classList.remove('show-sol');
+        }
+
+        // --- GENERATOR LOGIC ---
+        function generatePuzzle() {
+            const shapeSetKey = document.getElementById('shapeSelect').value;
+            const sizeKey = document.getElementById('sizeSelect').value;
+            const lang = document.getElementById('langSelect').value;
+            
+            const shapeList = shapes[shapeSetKey];
+            const [rows, cols] = sizeKey.split('x').map(Number);
+
+            // 1. Assign Colors
+            let shapeColorMap = {};
+            shapeList.forEach((s, i) => {
+                shapeColorMap[s.id] = puzzleColors[i % puzzleColors.length];
+            });
+
+            // 2. Render Legend
+            const legendBox = document.getElementById('legendBox');
+            legendBox.innerHTML = '';
+            shapeList.forEach(s => {
+                const colorObj = shapeColorMap[s.id];
+                const colorName = colorObj.names[lang] || colorObj.names['en'];
+                
+                legendBox.innerHTML += `
+                    <div class="legend-item">
+                        <div class="legend-shape">
+                            <svg viewBox="0 0 100 100"><path d="${s.path}" /></svg>
+                        </div>
+                        <div class="legend-text">= ${colorName}</div>
+                        <div class="legend-swatch" style="background:${colorObj.code}"></div>
+                    </div>
+                `;
+            });
+
+            // 3. Render Grid
+            const grid = document.getElementById('gridWrapper');
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            
+            if(showSol) grid.classList.add('show-sol');
+            else grid.classList.remove('show-sol');
+
+            if(document.getElementById('aidSelect').value === 'on') grid.classList.add('show-guide');
+            else grid.classList.remove('show-guide');
+
+            const totalCells = rows * cols;
+            for(let i=0; i<totalCells; i++) {
+                const randShape = shapeList[Math.floor(Math.random() * shapeList.length)];
+                const targetColor = shapeColorMap[randShape.id].code;
+
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                
+                cell.innerHTML = `
+                    <div class="shape-icon" style="--sol-color:${targetColor}">
+                        <svg viewBox="0 0 100 100"><path d="${randShape.path}" /></svg>
+                    </div>
+                    <div class="guide-dot" style="background:${targetColor}"></div>
+                `;
+                
+                grid.appendChild(cell);
+            }
+        }
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+function saveAsImage() {
+    const target = document.getElementById("paper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "color-by-shape-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+
+</body>
+</html>

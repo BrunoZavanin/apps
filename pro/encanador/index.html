@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Plumber Logic </title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default: Mario Style */
+            --bg-color: #81ecec;
+            --pipe-color: #00b894;
+            --pipe-border: #006266;
+            --joint-color: #55efc4;
+            --paper-bg: #ffffff;
+            --header-bg: #00cec9;
+            --header-border: #006266;
+            --accent: #fdcb6e;
+            
+            --a4-width: 210mm;
+            --a4-height: 297mm;
+            --pipe-width: 16px;
+        }
+
+        /* THEMES */
+        [data-theme="industrial"] { --bg-color: #dfe6e9; --pipe-color: #636e72; --pipe-border: #2d3436; --joint-color: #b2bec3; --header-bg: #636e72; --accent: #ff7675; }
+        [data-theme="candy"] { --bg-color: #ffeaa7; --pipe-color: #e84393; --pipe-border: #6c5ce7; --joint-color: #fd79a8; --header-bg: #e84393; --accent: #00cec9; }
+        [data-theme="ocean"] { --bg-color: #dff9fb; --pipe-color: #0984e3; --pipe-border: #2c3e50; --joint-color: #74b9ff; --header-bg: #0984e3; --accent: #fab1a0; }
+        [data-theme="lava"] { --bg-color: #fab1a0; --pipe-color: #d63031; --pipe-border: #632121; --joint-color: #ff7675; --header-bg: #d63031; --accent: #ffeaa7; }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { margin: 0; font-family: 'Nunito', sans-serif; background: #2d3436; display: flex; justify-content: center; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .settings-panel { width: 350px; background: rgba(0, 0, 0, 0.95); padding: 20px; height: 100vh; position: sticky; top: 0; overflow-y: auto; color: white; border-right: 1px solid rgba(255,255,255,0.1); }
+        .panel-header { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; color: #fab1a0; margin-bottom: 20px; text-align: center; border-bottom: 1px solid #555; padding-bottom: 10px; }
+        
+        .control-group { margin-bottom: 15px; border-bottom: 1px dashed #555; padding-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 700; color: #74b9ff; font-size: 0.8rem; text-transform: uppercase; }
+        select, input[type="text"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #555; background: #222; color: white; font-family: 'Nunito'; font-weight: 600; margin-bottom: 5px; }
+        
+        .btn-gen { width: 100%; padding: 12px; background: #00b894; color: white; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; font-family: 'Fredoka'; text-transform: uppercase; box-shadow: 0 4px 0 #006266; transition: 0.1s; }
+        .btn-gen:active { transform: translateY(3px); box-shadow: none; }
+        .btn-print { width: 100%; padding: 12px; background: transparent; border: 2px solid #74b9ff; border-radius: 8px; color: #74b9ff; font-weight: 900; cursor: pointer; margin-top: 10px; }
+
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 10px; }
+        .checkbox-wrapper input { transform: scale(1.3); accent-color: #00b894; }
+
+        /* WORKSHEET */
+        .worksheet-wrapper { 
+            background: var(--paper-bg); width: var(--a4-width); height: var(--a4-height); 
+            position: relative; margin: 20px; box-shadow: 0 0 50px rgba(0,0,0,0.5); 
+            display: flex; flex-direction: column; overflow: hidden; 
+        }
+
+        .ws-header {
+            background: var(--header-bg); padding: 20px 30px; border-bottom: 6px solid var(--pipe-border);
+            display: flex; justify-content: space-between; align-items: center; color: white;
+            position: relative;
+        }
+        .ws-header::after {
+            content: ""; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 2px dashed rgba(255,255,255,0.3); border-radius: 10px; pointer-events: none;
+        }
+
+        .ws-title { font-family: 'Fredoka'; font-size: 2.5rem; text-transform: uppercase; text-shadow: 2px 2px 0 rgba(0,0,0,0.2); margin: 0; }
+        .ws-subtitle { font-family: 'Nunito'; font-weight: 800; font-size: 1rem; opacity: 0.9; letter-spacing: 1px; }
+        .ws-info { text-align: right; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; }
+
+        /* GAME GRID */
+        .game-area {
+            flex-grow: 1; padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+            background-image: radial-gradient(var(--bg-color) 20%, transparent 20%);
+            background-size: 20px 20px;
+        }
+
+        .pipe-grid {
+            display: grid;
+            border: 8px solid var(--pipe-border);
+            background: white;
+            border-radius: 10px;
+            padding: 5px;
+            box-shadow: 10px 10px 0 rgba(0,0,0,0.1);
+        }
+
+        /* PIPE CELL */
+        .cell {
+            position: relative;
+            background: rgba(0,0,0,0.02);
+            border: 1px dashed rgba(0,0,0,0.05);
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* PIPE SEGMENTS */
+        .pipe-part {
+            position: absolute; background: var(--pipe-color);
+            border: 2px solid var(--pipe-border);
+            z-index: 1;
+        }
+        .joint {
+            width: 28px; height: 28px; background: var(--joint-color);
+            border: 2px solid var(--pipe-border); border-radius: 50%;
+            z-index: 2; position: absolute;
+            box-shadow: inset 2px 2px 0 rgba(255,255,255,0.4);
+        }
+
+        /* Directional Parts - Extend slightly into center to ensure overlap */
+        .p-up { width: var(--pipe-width); height: 58%; top: 0; left: 50%; transform: translateX(-50%); border-bottom: none; }
+        .p-down { width: var(--pipe-width); height: 58%; bottom: 0; left: 50%; transform: translateX(-50%); border-top: none; }
+        .p-left { width: 58%; height: var(--pipe-width); left: 0; top: 50%; transform: translateY(-50%); border-right: none; }
+        .p-right { width: 58%; height: var(--pipe-width); right: 0; top: 50%; transform: translateY(-50%); border-left: none; }
+
+        /* Start/End Icons */
+        .icon-marker {
+            font-size: 2.2rem; z-index: 5; position: relative;
+            background: white; border-radius: 50%; padding: 4px;
+            border: 2px solid var(--pipe-border);
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+            line-height: 1;
+        }
+
+        /* Solution Styling */
+        .show-ans .correct-path .pipe-part { background: var(--accent) !important; border-color: #d35400; }
+        .show-ans .correct-path .joint { background: #ffeaa7 !important; border-color: #d35400; }
+
+        .ws-footer {
+            text-align: center; padding: 10px; font-size: 0.8rem; color: #888; font-family: 'Nunito';
+            border-top: 1px solid #ccc; background: white; width: 100%; position: absolute; bottom: 0;
+        }
+
+        @media print {
+            body { display: block; background: white; }
+            .settings-panel { display: none; }
+            .worksheet-wrapper { margin: 0; box-shadow: none; width: 100%; height: 100vh; page-break-after: always; padding: 0; }
+            .pipe-part, .joint { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .ws-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { margin: 0; }
+        }
+    </style>
+</head>
+<body data-theme="mario" class="hide-ans">
+
+    <div class="settings-panel">
+        <div class="panel-header">🔧 PLUMBER PERFECT</div>
+
+        <div class="control-group">
+            <label>1. Language (10+)</label>
+            <select id="langSelect" onchange="updateLang()">
+                <option value="en" selected>🇺🇸 English</option>
+                <option value="id">🇮🇩 Indonesia</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="nl">🇳🇱 Nederlands</option>
+                <option value="ru">🇷🇺 Russian</option>
+                <option value="ja">🇯🇵 Japanese</option>
+                <option value="ko">🇰🇷 Korean</option>
+                <option value="ar">🇸🇦 Arabic</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>2. Theme & Colors</label>
+            <select id="themeSelect" onchange="updateTheme()">
+                <option value="mario">🍄 Water World</option>
+                <option value="industrial">🏭 Industrial</option>
+                <option value="candy">🍬 Candy Land</option>
+                <option value="ocean">🌊 Deep Ocean</option>
+                <option value="lava">🌋 Lava Cave</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>3. Difficulty</label>
+            <select id="gridSize" onchange="generateMaze()">
+                <option value="4">4 x 4 (Beginner)</option>
+                <option value="5">5 x 5 (Easy)</option>
+                <option value="6" selected>6 x 6 (Medium)</option>
+                <option value="8">8 x 8 (Hard)</option>
+                <option value="10">10 x 10 (Expert)</option>
+            </select>
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="showSolution" onchange="toggleSol()">
+                <span>Show Solution Path</span>
+            </label>
+        </div>
+
+        <div class="control-group">
+            <label>4. Custom Labels</label>
+            <input type="text" id="inpTitle" value="PLUMBER LOGIC" oninput="renderText()">
+            <input type="text" id="inpSubtitle" value="Color the correct pipe path!" oninput="renderText()">
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="inpStart" value="START" oninput="renderText()">
+                <input type="text" id="inpEnd" value="END" oninput="renderText()">
+            </div>
+            <input type="text" id="footerText" value="Generated with KidzPaper" oninput="renderText()">
+        </div>
+
+        <button class="btn-gen" onclick="generateMaze()">🔧 BUILD PIPES</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="worksheet-wrapper">
+        <div class="ws-header">
+            <div>
+                <h1 class="ws-title" id="outTitle">PLUMBER LOGIC</h1>
+                <div class="ws-subtitle" id="outSubtitle">Color the correct pipe path!</div>
+            </div>
+            <div class="ws-info">
+                <span id="outStart">START</span>: 🚰<br>
+                <span id="outEnd">END</span>: 🌻
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="pipe-grid" id="gridContainer"></div>
+        </div>
+
+        <div class="ws-footer" id="outFooter">Generated with OrbitLogic</div>
+    </div>
+
+    <script>
+        const translations = {
+            en: { t: "PLUMBER LOGIC", s: "Color the correct pipe path!", st: "START", ed: "END" },
+            id: { t: "LOGIKA PIPA", s: "Warnai jalur pipa yang benar!", st: "MULAI", ed: "SELESAI" },
+            de: { t: "ROHR-LOGIK", s: "Mal den richtigen Weg aus!", st: "START", ed: "ENDE" },
+            fr: { t: "PLOMBERIE", s: "Coloriez le bon chemin!", st: "DEBUT", ed: "FIN" },
+            es: { t: "FONTANERO", s: "¡Colorea el camino correcto!", st: "INICIO", ed: "FIN" },
+            it: { t: "IDRAULICO", s: "Colora il percorso corretto!", st: "INIZIO", ed: "FINE" },
+            pt: { t: "ENCANADOR", s: "Pinte o caminho correto!", st: "INÍCIO", ed: "FIM" },
+            nl: { t: "LOODGIETER", s: "Kleur het juiste pad!", st: "START", ed: "EINDE" },
+            ru: { t: "ТРУБОПРОВОД", s: "Раскрась правильный путь!", st: "СТАРТ", ed: "ФИНИШ" },
+            ja: { t: "配管パズル", s: "正しいパイプの道を塗ろう！", st: "開始", ed: "終了" },
+            ko: { t: "배관 퍼즐", s: "올바른 경로를 색칠하세요!", st: "시작", ed: "끝" },
+            ar: { t: "لغز الأنابيب", s: "لون مسار الأنبوب الصحيح!", st: "البداية", ed: "النهاية" }
+        };
+
+        // --- PROPER MAZE GENERATION (Recursive Backtracker) ---
+        // Generates a real maze: every cell is reachable, there are dead ends,
+        // loops and forks — but exactly ONE path from start to end.
+        function generateMaze() {
+            const size      = parseInt(document.getElementById('gridSize').value);
+            const container = document.getElementById('gridContainer');
+
+            container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            container.style.gridTemplateRows    = `repeat(${size}, 1fr)`;
+
+            const maxSize  = 700;
+            const cellSize = Math.floor(maxSize / size);
+            const pxSize   = `${cellSize}px`;
+
+            // ── Step 1: Recursive-backtracker maze ──────────────────────────
+            // Each cell stores which of its 4 walls are OPEN (passage exists).
+            // walls[r][c] = { u, d, l, r }  (true = open passage that direction)
+            const walls = Array.from({length: size}, () =>
+                Array.from({length: size}, () => ({u:false, d:false, l:false, r:false}))
+            );
+
+            const visited = Array.from({length: size}, () => Array(size).fill(false));
+
+            function carve(r, c) {
+                visited[r][c] = true;
+                const dirs = [
+                    {dr:-1, dc:0, from:'d', to:'u'},
+                    {dr: 1, dc:0, from:'u', to:'d'},
+                    {dr: 0, dc:-1, from:'r', to:'l'},
+                    {dr: 0, dc: 1, from:'l', to:'r'}
+                ].sort(() => Math.random() - 0.5);
+
+                for (const {dr, dc, from, to} of dirs) {
+                    const nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < size && nc >= 0 && nc < size && !visited[nr][nc]) {
+                        // Open the wall between (r,c) and (nr,nc) in both cells
+                        walls[r][c][to]   = true;
+                        walls[nr][nc][from] = true;
+                        carve(nr, nc);
+                    }
+                }
+            }
+            carve(0, 0);
+
+            // ── Step 2: Find the solution path (BFS from start to end) ──────
+            const endR = size - 1, endC = size - 1;
+            const prev = Array.from({length: size}, () => Array(size).fill(null));
+            const queue = [{r:0, c:0}];
+            const seen  = Array.from({length: size}, () => Array(size).fill(false));
+            seen[0][0] = true;
+
+            while (queue.length) {
+                const {r, c} = queue.shift();
+                if (r === endR && c === endC) break;
+                const w = walls[r][c];
+                const moves = [
+                    {dr:-1, dc:0, open: w.u},
+                    {dr: 1, dc:0, open: w.d},
+                    {dr: 0, dc:-1, open: w.l},
+                    {dr: 0, dc: 1, open: w.r}
+                ];
+                for (const {dr, dc, open} of moves) {
+                    const nr = r+dr, nc = c+dc;
+                    if (open && !seen[nr]?.[nc]) {
+                        seen[nr][nc] = true;
+                        prev[nr][nc] = {r, c};
+                        queue.push({r:nr, c:nc});
+                    }
+                }
+            }
+
+            // Trace solution path back
+            const pathSet = new Set();
+            let cur = {r: endR, c: endC};
+            while (cur) {
+                pathSet.add(`${cur.r},${cur.c}`);
+                cur = prev[cur.r]?.[cur.c];
+            }
+
+            // ── Step 3: Render ───────────────────────────────────────────────
+            container.innerHTML = '';
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    const w       = walls[r][c];
+                    const isPath  = pathSet.has(`${r},${c}`);
+                    const isStart = (r === 0   && c === 0);
+                    const isEnd   = (r === endR && c === endC);
+
+                    // A cell only gets a joint if it has at least one opening
+                    const hasAny = w.u || w.d || w.l || w.r;
+
+                    let html = `<div class="cell ${isPath ? 'correct-path' : ''}" style="width:${pxSize}; height:${pxSize}">`;
+
+                    if (hasAny || isStart || isEnd) {
+                        html += `<div class="joint"></div>`;
+                        if (w.u) html += `<div class="pipe-part p-up"></div>`;
+                        if (w.d) html += `<div class="pipe-part p-down"></div>`;
+                        if (w.l) html += `<div class="pipe-part p-left"></div>`;
+                        if (w.r) html += `<div class="pipe-part p-right"></div>`;
+                    }
+
+                    if (isStart) html += `<div class="icon-marker">🚰</div>`;
+                    if (isEnd)   html += `<div class="icon-marker">🌻</div>`;
+
+                    html += `</div>`;
+                    container.innerHTML += html;
+                }
+            }
+            toggleSol();
+        }
+
+        // UI Functions
+        function updateTheme() { document.body.setAttribute('data-theme', document.getElementById('themeSelect').value); }
+        function updateLang() {
+            const lang = document.getElementById('langSelect').value;
+            const t = translations[lang];
+            document.getElementById('inpTitle').value = t.t;
+            document.getElementById('inpSubtitle').value = t.s;
+            document.getElementById('inpStart').value = t.st;
+            document.getElementById('inpEnd').value = t.ed;
+            renderText();
+        }
+        function renderText() {
+            document.getElementById('outTitle').innerText = document.getElementById('inpTitle').value;
+            document.getElementById('outSubtitle').innerText = document.getElementById('inpSubtitle').value;
+            document.getElementById('outStart').innerText = document.getElementById('inpStart').value;
+            document.getElementById('outEnd').innerText = document.getElementById('inpEnd').value;
+            document.getElementById('outFooter').innerText = document.getElementById('footerText').value;
+        }
+        function toggleSol() {
+            const show = document.getElementById('showSolution').checked;
+            if(show) document.body.classList.add('show-ans');
+            else document.body.classList.remove('show-ans');
+        }
+
+        window.onload = () => {
+            updateTheme();
+            updateLang();
+            generateMaze();
+        }
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.querySelector(".worksheet-wrapper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "plumber-logic-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>

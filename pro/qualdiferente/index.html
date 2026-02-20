@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Odd One Out</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default: Space Edition (Purple & Cyan) */
+            --bg-ui: linear-gradient(180deg, #2e1a47 0%, #1a1a40 100%);
+            --panel-accent: #6a5acd;
+            --glow: #00e5ff;
+            --orange-btn: linear-gradient(to bottom, #ffca28, #f57c00);
+            --a4-width: 210mm;
+        }
+
+        /* Themes */
+        [data-theme="berry"] { 
+            --bg-ui: linear-gradient(180deg, #4a148c 0%, #2a0035 100%); 
+            --panel-accent: #ab47bc; --glow: #ff4081; 
+        }
+        [data-theme="nature"] { 
+            --bg-ui: linear-gradient(180deg, #1b5e20 0%, #002e00 100%); 
+            --panel-accent: #4caf50; --glow: #c6ff00; 
+        }
+        [data-theme="ocean"] { 
+            --bg-ui: linear-gradient(180deg, #004d40 0%, #002420 100%); 
+            --panel-accent: #00897b; --glow: #00e5ff; 
+        }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; }
+
+        body {
+            margin: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: #0b0b1a;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* --- Settings Panel --- */
+        .settings-panel {
+            width: 350px;
+            background: var(--bg-ui);
+            padding: 25px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            border-right: 3px solid var(--glow);
+            color: white;
+            box-shadow: 10px 0 20px rgba(0,0,0,0.5);
+        }
+
+        .panel-header {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.8rem;
+            color: var(--glow);
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--glow);
+        }
+
+        .control-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; font-weight: 700; color: #ffca28; text-transform: uppercase; font-size: 0.7rem; }
+        
+        select, input[type="text"], input[type="range"] {
+            width: 100%; padding: 10px; border-radius: 12px; border: 2px solid var(--glow);
+            background: rgba(255,255,255,0.1); color: white; outline: none; margin-bottom: 5px; font-size: 0.85rem;
+        }
+        option { background: #1a1a40; }
+
+        .btn-gen {
+            width: 100%; padding: 15px; border-radius: 20px; border: none; 
+            background: var(--orange-btn); color: white; font-weight: 900; 
+            cursor: pointer; font-family: 'Fredoka'; font-size: 1.1rem;
+            box-shadow: 0 5px 0 #b35900; transition: 0.1s; margin-top: 10px;
+        }
+        .btn-gen:active { transform: translateY(3px); box-shadow: 0 2px 0 #b35900; }
+
+        .btn-print {
+            width: 100%; padding: 12px; border-radius: 20px; border: 2px solid var(--glow);
+            background: transparent; color: var(--glow); font-weight: 900; 
+            cursor: pointer; font-family: 'Fredoka'; margin-top: 15px;
+        }
+
+        /* --- Worksheet Area --- */
+        .worksheet-wrapper {
+            background: white;
+            width: var(--a4-width);
+            padding: 15mm;
+            color: #333;
+            margin: 20px;
+            min-height: 297mm;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .ws-header {
+            border: 4px solid var(--panel-accent);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8faff;
+        }
+
+        .ws-title-box h1 { 
+            margin: 0; font-family: 'Fredoka'; font-size: 2.2rem; color: var(--panel-accent); 
+        }
+        .ws-info-box { font-weight: 700; text-align: right; font-size: 0.9rem; }
+        .input-line { display: inline-block; width: 150px; border-bottom: 2px dashed var(--panel-accent); height: 1.1rem; margin-left: 5px; }
+
+        .q-card {
+            border: 3px solid var(--panel-accent);
+            border-radius: 25px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+            break-inside: avoid;
+        }
+
+        .q-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+
+        .q-num {
+            background: var(--orange-btn);
+            color: white;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1.1rem;
+        }
+
+        .q-text { font-weight: 800; font-size: 1.1rem; color: var(--panel-accent); }
+
+        .item-grid { display: flex; justify-content: space-around; padding: 5px; }
+
+        .item-box {
+            width: 80px; height: 80px;
+            border: 3px solid #eee;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem;
+            position: relative;
+        }
+
+        .is-odd.show-ans { border-color: #ff5252; background: #fff1f1; }
+        .is-odd.show-ans::after {
+            content: '✘'; position: absolute; top: -8px; right: -8px;
+            background: #ff5252; color: white; width: 22px; height: 22px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 900;
+        }
+
+        .ws-footer {
+            text-align: center; margin-top: 25px; padding-top: 10px;
+            border-top: 2px solid var(--panel-accent);
+            color: var(--panel-accent); font-weight: 700; font-size: 0.8rem;
+        }
+
+        @media print {
+            body { background: white; }
+            .settings-panel { display: none; }
+            .worksheet-wrapper { margin: 0; box-shadow: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="settings-panel">
+        <div class="panel-header" id="panel-ui-title">🚀 ODD ONE OUT</div>
+
+        <div class="control-group">
+            <label>Language</label>
+            <select id="langSelect" onchange="render()"></select>
+        </div>
+
+        <div class="control-group">
+            <label>Question Count: <span id="qCountVal">4</span></label>
+            <input type="range" id="qCount" min="1" max="20" value="4" oninput="updateCountLabel(); generatePool();">
+        </div>
+
+        <div class="control-group">
+            <label>Color Scheme</label>
+            <select id="themeSelect" onchange="updateTheme()">
+                <option value="space">Space Edition (Purple)</option>
+                <option value="berry">Wild Berry (Pink/Purple)</option>
+                <option value="nature">Nature Forest (Green)</option>
+                <option value="ocean">Deep Ocean (Teal)</option>
+            </select>
+        </div>
+
+        <hr style="opacity:0.2; margin: 15px 0;">
+
+        <div class="control-group">
+            <label>App Logo (Emoji)</label>
+            <input type="text" id="custAppLogo" placeholder="🚀" oninput="updateAppIdentity()">
+            <label>App Title</label>
+            <input type="text" id="custAppTitle" placeholder="ODD ONE OUT" oninput="updateAppIdentity()">
+            
+            <label>Worksheet Title</label>
+            <input type="text" id="custTitle" placeholder="ODD ONE OUT" oninput="render()">
+            <label>Subtitle</label>
+            <input type="text" id="custSubtitle" placeholder="Find the intruder!" oninput="render()">
+            <label>Name Label</label>
+            <input type="text" id="custName" placeholder="Name" oninput="render()">
+            <label>Class Label</label>
+            <input type="text" id="custClass" placeholder="Class" oninput="render()">
+            <label>Footer Text</label>
+            <input type="text" id="custFooter" placeholder="Made With KidzPaper" oninput="render()">
+        </div>
+
+        <div class="control-group" style="display:flex; align-items:center; gap:10px; background: rgba(0,229,255,0.1); padding: 10px; border-radius: 12px;">
+            <input type="checkbox" id="showAns" onchange="render()" style="width:18px; height: 18px;">
+            <label style="margin:0;">Show Answers</label>
+        </div>
+
+        <button class="btn-gen" onclick="generatePool()">✨ REGENERATE</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT NOW</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="worksheet-wrapper">
+        <div class="ws-header">
+            <div class="ws-title-box">
+                <h1 id="out-title">ODD ONE OUT</h1>
+                <div id="out-subtitle" style="font-weight:900; color: var(--panel-accent); letter-spacing: 1px; font-size: 0.8rem;">FIND THE INTRUDER!</div>
+            </div>
+            <div class="ws-info-box">
+                <div><span id="lbl-name">Name</span>: <span class="input-line"></span></div>
+                <div style="margin-top:5px;"><span id="lbl-class">Class</span>: <span class="input-line"></span></div>
+            </div>
+        </div>
+
+        <div class="ws-content" id="questions"></div>
+
+        <div class="ws-footer" id="out-footer">Space Logic Educational Tool</div>
+    </div>
+
+    <script>
+        const translations = {
+            "English": { name: "Name", class: "Class", title: "ODD ONE OUT", sub: "Which one is different? Circle it!", footer: "Educational Resource" },
+            "Bahasa Indonesia": { name: "Nama", class: "Kelas", title: "CARI YANG BEDA", sub: "Mana yang berbeda? Lingkari!", footer: "Sumber Edukasi" },
+            "Español": { name: "Nombre", class: "Clase", title: "EL INTRUSO", sub: "¿Cuál es diferente? ¡Enciérralo!", footer: "Recurso Educativo" },
+            "Français": { name: "Nom", class: "Classe", title: "L'INTRUS", sub: "Lequel est différent ? Entoure-le !", footer: "Ressource Pédagogique" },
+            "Deutsch": { name: "Name", class: "Klasse", title: "WAS PASST NICHT?", sub: "Was ist anders? Einkreisen!", footer: "Bildungsmaterial" },
+            "Italiano": { name: "Nome", class: "Classe", title: "L'INTRUSO", sub: "Quale è diverso? Cerchialo!", footer: "Risorsa Didattica" },
+            "Português": { name: "Nome", class: "Classe", title: "O INTRUSO", sub: "Qual é o diferente? Circule!", footer: "Recurso Educativo" },
+            "Nederlands": { name: "Naam", class: "Klas", title: "WAT HOORT ER NIET BIJ?", sub: "Welke is anders? Omcirkel!", footer: "Educatief Materiaal" },
+            "Türkçe": { name: "İsim", class: "Sınıf", title: "FARKLI OLANI BUL", sub: "Hangisi berbeda? Yuvarlak içine al!", footer: "Eğitim Kaynağı" },
+            "Arabic (العربية)": { name: "الاسم", class: "الصف", title: "أوجد المختلف", sub: "أيها المختلف؟ ضع دائرة حوله!", footer: "مورد تعليمي" },
+            "Chinese (中文)": { name: "姓名", class: "班级", title: "找不同", sub: "哪一个不同？圈出来！", footer: "教育资源" },
+            "Japanese (日本語)": { name: "名前", class: "クラス", title: "仲間外れ探し", sub: "どれが違うかな？丸をつけよう！", footer: "教育用リソース" },
+            "Korean (한국어)": { name: "이름",韩国语: "반", title: "다른 것 찾기", sub: "어느 것이 다를까요? 동그라미 치세요!", footer: "교육 리소스" },
+            "Hindi (हिन्दी)": { name: "नाम", class: "कक्षा", title: "अलग को पहचानें", sub: "कौन सा अलग है? गोला लगाओ!", footer: "शैक्षिक संसाधन" },
+            "Russian (Русский)": { name: "Имя", class: "Класс", title: "ЛИШНИЙ ПРЕДМЕТ", sub: "Что здесь лишнее? Обведи!", footer: "Учебный ресурс" }
+        };
+
+        const oddOneOutSets = [
+            { items: ['🍎', '🍌', '🍇'], odd: '🥦' }, { items: ['🚗', '🚲', '🚂'], odd: '🏠' }, 
+            { items: ['🦁', '🐯', '🐻'], odd: '🛸' }, { items: ['🚀', '🪐', '🌌'], odd: '🍦' }, 
+            { items: ['☀️', '☁️', '🌙'], odd: '🍕' }, { items: ['💻', '🖱️', '⌨️'], odd: '🍎' }, 
+            { items: ['👕', '👖', '👟'], odd: '🚗' }, { items: ['📐', '📏', '✏️'], odd: '🍪' }, 
+            { items: ['🐘', '🦒', '🦓'], odd: '🚁' }, { items: ['🏀', '⚽', '🎾'], odd: '🍩' }, 
+            { items: ['🏠', '🏘️', '🏢'], odd: '🚀' }, { items: ['🍓', '🍒', '🍉'], odd: '🌵' },
+            { items: ['🛸', '🪐', '☄️'], odd: '🍔' }, { items: ['🦈', '🐙', '🦀'], odd: '🌲' },
+            { items: ['🧱', '🏗️', '🔨'], odd: '🦋' }, { items: ['🥛', '🧃', '☕'], odd: '👞' },
+            { items: ['🦜', '🦅', '🦉'], odd: '🚲' }, { items: ['🥦', '🥕', '🌽'], odd: '🛸' },
+            { items: ['💎', '💍', '👑'], odd: '🪵' }, { items: ['🚒', '🚑', '🚓'], odd: '🎈' },
+            { items: ['🌑', '🌓', '🌕'], odd: '🧁' }, { items: ['🌲', '🌳', '🌴'], odd: '🚜' }
+        ];
+
+        let currentPool = [];
+
+        function updateCountLabel() { document.getElementById('qCountVal').innerText = document.getElementById('qCount').value; }
+
+        function updateTheme() {
+            document.body.setAttribute('data-theme', document.getElementById('themeSelect').value);
+            render();
+        }
+
+        function updateAppIdentity() {
+            const logo = document.getElementById('custAppLogo').value || "🚀";
+            const title = document.getElementById('custAppTitle').value || "ODD ONE OUT";
+            document.getElementById('panel-ui-title').innerText = `${logo} ${title}`;
+        }
+
+        function generatePool() {
+            const count = parseInt(document.getElementById('qCount').value);
+            currentPool = [];
+            let shuffled = [...oddOneOutSets].sort(() => 0.5 - Math.random());
+            for (let i = 0; i < count; i++) {
+                let set = shuffled[i % shuffled.length];
+                let all = [...set.items, set.odd].sort(() => 0.5 - Math.random());
+                currentPool.push({ display: all, odd: set.odd });
+            }
+            render();
+        }
+
+        function render() {
+            const langKey = document.getElementById('langSelect').value || "English";
+            const t = translations[langKey];
+            const showAns = document.getElementById('showAns').checked;
+
+            document.getElementById('out-title').innerText = document.getElementById('custTitle').value || "ODD ONE OUT";
+            document.getElementById('out-subtitle').innerText = document.getElementById('custSubtitle').value || t.sub;
+            document.getElementById('lbl-name').innerText = document.getElementById('custName').value || t.name;
+            document.getElementById('lbl-class').innerText = document.getElementById('custClass').value || t.class;
+            document.getElementById('out-footer').innerText = document.getElementById('custFooter').value || "Made With KidzPaper";
+
+            const container = document.getElementById('questions');
+            container.innerHTML = '';
+
+            currentPool.forEach((q, idx) => {
+                let itemsHtml = q.display.map(item => {
+                    let classes = (item === q.odd) ? 'is-odd' : '';
+                    if (showAns && item === q.odd) classes += ' show-ans';
+                    return `<div class="item-box ${classes}">${item}</div>`;
+                }).join('');
+
+                container.innerHTML += `
+                    <div class="q-card">
+                        <div class="q-header">
+                            <div class="q-num">${idx + 1}</div>
+                            <div class="q-text">${t.sub}</div>
+                        </div>
+                        <div class="item-grid">${itemsHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        window.onload = () => {
+            const langEl = document.getElementById('langSelect');
+            Object.keys(translations).forEach(l => langEl.innerHTML += `<option value="${l}">${l}</option>`);
+            generatePool();
+        };
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.querySelector(".worksheet-wrapper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "odd-one-out-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>

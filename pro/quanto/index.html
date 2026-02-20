@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - How Many?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default values - will be overwritten by JS */
+            --primary: #FF9F43;
+            --secondary: #54a0ff;
+            --accent: #ff6b6b;
+            --bg-body: #dfe6e9;
+            --text-main: #2d3436;
+            --card-border: #dfe6e9;
+            --jar-bg: rgba(255, 159, 67, 0.1);
+        }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        
+        body {
+            margin: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 360px;
+            background: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            z-index: 20;
+            border-right: 1px solid #ccc;
+            flex-shrink: 0;
+        }
+
+        h2 { margin: 0; font-family: 'Gaegu', cursive; color: var(--primary); font-size: 2rem; border-bottom: 3px dashed #eee; padding-bottom: 10px; text-align: center; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 5px; }
+        label { font-weight: 800; font-size: 0.75rem; color: #636e72; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select, input, button {
+            width: 100%; padding: 10px; border: 2px solid #dfe6e9; border-radius: 8px;
+            font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.2s; cursor: pointer;
+        }
+        select:focus, input:focus { border-color: var(--primary); background: #fdfdfd; }
+
+        /* Color Buttons */
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .color-btn {
+            width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid white; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s;
+        }
+        .color-btn.active { box-shadow: 0 0 0 3px #2d3436; transform: scale(1.15); border-color: white; }
+
+        /* Editor Box */
+        .editor-box { background: #f1f2f6; padding: 12px; border-radius: 10px; border: 1px solid #ced6e0; }
+        .editor-box h3 { margin: 0 0 8px 0; font-size: 0.8rem; color: #2d3436; font-weight: 900; text-transform: uppercase; }
+
+        .btn-gen { background: var(--primary); color: white; border: none; font-weight: 800; box-shadow: 0 4px 0 rgba(0,0,0,0.2); margin-top: 5px; }
+        .btn-gen:active { transform: translateY(4px); box-shadow: none; }
+        
+        .btn-toggle { background: white; border: 2px solid #b2bec3; color: #636e72; font-weight: 700; }
+        .btn-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .btn-print { background: #2d3436; color: white; border: none; font-weight: 800; margin-top: auto; padding: 15px; font-size: 1rem; }
+
+        /* --- PREVIEW AREA --- */
+        .preview-area {
+            flex: 1;
+            background: #b2bec3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: auto;
+            padding: 40px 20px;
+        }
+
+        .paper {
+            width: 210mm;
+            height: 297mm; /* A4 Fixed */
+            background: white;
+            /* Polka Dot Pattern */
+            background-image: radial-gradient(#f1f2f6 15%, transparent 16%);
+            background-size: 20px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 15mm;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transform-origin: top center;
+            flex-shrink: 0;
+            overflow: hidden; /* Prevents spillover */
+        }
+
+        /* --- HEADER --- */
+        .header { 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            margin-bottom: 15px; border-bottom: 4px dashed var(--primary); padding-bottom: 10px; 
+        }
+        .title h1 { 
+            font-family: 'Gaegu', cursive; font-size: 3.5rem; margin: 0; 
+            color: var(--primary); line-height: 0.8; text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+        }
+        .title p { margin: 5px 0 0; color: #636e72; font-weight: 700; font-size: 1rem; }
+        
+        .info { text-align: right; font-size: 0.9rem; color: #636e72; }
+        .info-row { display: flex; gap: 5px; justify-content: flex-end; align-items: baseline; margin-bottom: 5px; }
+        .line { border-bottom: 2px dotted #b2bec3; width: 140px; display: inline-block; text-align: center; }
+
+        /* --- GRID --- */
+        .grid-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: repeat(3, 1fr); 
+            gap: 20px;
+            /* Ensures it stays within page height */
+            height: 100%; 
+            max-height: 220mm;
+        }
+
+        /* --- CARD 3D DESIGN --- */
+        .card {
+            border: 3px solid var(--card-border);
+            border-radius: 20px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            background: #fff;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.05); /* 3D Card Look */
+        }
+
+        /* Container Area */
+        .container-area {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden; /* CRITICAL: Prevents item overflow */
+            margin-bottom: 5px;
+        }
+
+        /* STYLES - FIXED COLOR VARIABLES */
+        /* JAR: Glassy Look */
+        .style-jar {
+            width: 80%; height: 90%;
+            border: 4px solid var(--primary); /* Updated */
+            border-radius: 20px 20px 40px 40px;
+            background: var(--jar-bg); /* Updated */
+            position: relative;
+            display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: center;
+        }
+        .style-jar::before { content: ''; position: absolute; top: -12px; left: 15%; width: 70%; height: 12px; background: var(--primary); border-radius: 6px; } /* Updated */
+        .style-jar::after { content: ''; position: absolute; top: 10%; right: 10%; width: 10px; height: 60%; background: rgba(255,255,255,0.7); border-radius: 5px; transform: rotate(5deg); }
+
+        /* CLOUD: Fluffy */
+        .style-cloud {
+            width: 90%; height: 90%;
+            border: 4px solid var(--secondary);
+            background: #f1f2f6;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: center;
+            box-shadow: inset 0 -5px 0 rgba(0,0,0,0.05);
+        }
+
+        /* BOX: Cardboard */
+        .style-box {
+            width: 85%; height: 90%;
+            border: 4px dashed var(--primary); /* Updated */
+            border-radius: 15px;
+            background: #fafafa;
+            display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: center;
+        }
+
+        /* ICONS - DYNAMIC SCALING */
+        .icon-item {
+            line-height: 1;
+            margin: 2px;
+            filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.1));
+            display: inline-block;
+            /* Font size will be set via JS to prevent overflow */
+        }
+
+        /* ANSWER AREA */
+        .answer-area {
+            width: 100%;
+            height: 50px;
+            display: flex; justify-content: center; align-items: center;
+            border-top: 2px dotted #eee;
+            padding-top: 8px;
+        }
+
+        /* Write Mode */
+        .mode-write .answer-box {
+            width: 45px; height: 45px;
+            border: 2px dashed var(--primary); /* Updated */
+            border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Fredoka', sans-serif; font-size: 1.5rem; color: var(--accent);
+            background: #fdfdfd;
+        }
+
+        /* Choice Mode */
+        .mode-choice { gap: 10px; }
+        .choice-circle {
+            width: 40px; height: 40px;
+            border: 2px solid #dfe6e9;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 1.2rem;
+            color: #636e72;
+            cursor: pointer;
+            background: white;
+            box-shadow: 0 3px 0 #dfe6e9;
+        }
+
+        /* Solution */
+        .correct-answer {
+            border-color: var(--accent) !important;
+            color: white !important;
+            background: var(--accent) !important;
+            box-shadow: 0 3px 0 #d63031 !important;
+            transform: translateY(2px);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center; font-size: 0.8rem; color: #b2bec3; 
+            margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px;
+        }
+
+        /* Editable */
+        [contenteditable] { border-bottom: 1px dashed transparent; transition: 0.2s; }
+        [contenteditable]:hover { background: rgba(255, 234, 167, 0.4); border-bottom: 1px solid var(--secondary); }
+        [contenteditable]:focus { outline: none; border-bottom: 2px solid var(--secondary); background: rgba(255, 255, 0, 0.1); }
+
+        /* PRINT SETTINGS (CRITICAL) */
+        @media print {
+            body { background: white; display: block; overflow: visible; height: auto; }
+            .sidebar { display: none; }
+            .preview-area { padding: 0; background: white; display: block; overflow: visible; }
+            .paper { 
+                margin: 0; 
+                box-shadow: none; 
+                page-break-after: avoid; 
+                page-break-inside: avoid;
+                width: 100%; 
+                height: 100vh; /* Force single page height */
+                transform: none !important; 
+                background-size: 10px 10px; /* Smaller pattern for print */
+                overflow: hidden; /* Cut off anything that dares to spill */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🥣 How Many?</h2>
+
+        <div class="control-group">
+            <label>Theme Colors</label>
+            <div class="color-grid" id="colorContainer"></div>
+        </div>
+
+        <div class="editor-box">
+            <h3>📝 EDIT TEXTS</h3>
+            <div class="control-group">
+                <input type="text" id="inpTitle" value="HOW MANY?" oninput="updateText('outTitle', this.value)">
+                <input type="text" id="inpSub" value="Count the items!" oninput="updateText('outSub', this.value)">
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:5px;">
+                <input type="text" id="inpName" value="Name:" oninput="updateText('lblN', this.value)">
+                <input type="text" id="inpClass" value="Class:" oninput="updateText('lblC', this.value)">
+                <input type="text" id="inpDate" value="Date:" oninput="updateText('lblD', this.value)">
+            </div>
+            <div class="control-group" style="margin-top:5px;">
+                <input type="text" id="inpFooter" value="Created with KidzWorksheet" oninput="updateText('outFooter', this.value)">
+            </div>
+        </div>
+
+        <div class="control-group" style="margin-top:10px;">
+            <label>Language (12 Options)</label>
+            <select id="langSelect" onchange="changeLanguage()">
+                <option value="en">🇺🇸 English</option>
+                <option value="id">🇮🇩 Indonesia</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="nl">🇳🇱 Nederlands</option>
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="pl">🇵🇱 Polski</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="jp">🇯🇵 日本語</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Objects</label>
+            <select id="themeSelect" onchange="generateData()">
+                <option value="fruits">🍎 Fruits</option>
+                <option value="nature">🌻 Nature</option>
+                <option value="animals">🐼 Animals</option>
+                <option value="sweets">🍪 Sweets</option>
+                <option value="school">✏️ School</option>
+                <option value="home">🏠 Home</option>
+                <option value="shapes">🔷 Shapes</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Difficulty (Count)</label>
+            <select id="rangeSelect" onchange="generateData()">
+                <option value="3-5">Toddler (1 - 5)</option>
+                <option value="5-10" selected>Easy (5 - 10)</option>
+                <option value="8-12">Medium (8 - 12)</option>
+                <option value="12-20">Hard (12 - 20) [Auto-Scale]</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Container</label>
+            <select id="styleSelect" onchange="renderGrid()">
+                <option value="style-jar">🫙 Glass Jar</option>
+                <option value="style-cloud">☁️ Cloud</option>
+                <option value="style-box">📦 Box</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Answer Mode</label>
+            <select id="modeSelect" onchange="renderGrid()">
+                <option value="mode-choice">⭕ Circle Choice</option>
+                <option value="mode-write">✏️ Write Box</option>
+            </select>
+        </div>
+
+        <button class="btn-gen" onclick="generateData()">🎲 SHUFFLE NEW PUZZLE</button>
+        <button class="btn-toggle" id="btnSol" onclick="toggleSol()">👁️ SHOW ANSWERS</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT PDF (A4)</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="preview-area">
+        <div class="paper" id="paper">
+            
+            <div class="header">
+                <div class="title">
+                    <h1 id="outTitle" contenteditable="true">HOW MANY?</h1>
+                    <p id="outSub" contenteditable="true">Count the items!</p>
+                </div>
+                <div class="info">
+                    <div class="info-row"><span class="info-label" id="lblN" contenteditable="true">Name:</span> <span class="line" contenteditable="true"></span></div>
+                    <div class="info-row"><span class="info-label" id="lblC" contenteditable="true">Class:</span> <span class="line" contenteditable="true"></span></div>
+                    <div class="info-row"><span class="info-label" id="lblD" contenteditable="true">Date:</span> <span class="line" contenteditable="true"></span></div>
+                </div>
+            </div>
+
+            <div class="grid-container" id="grid">
+                </div>
+
+            <div class="footer" id="outFooter" contenteditable="true">
+                Created with KidzWorksheet
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SAFE DATASETS (No Religious/Controversial Items) ---
+        const icons = {
+            fruits: ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🍒','🍍','🥝','🥑','🍑','🥭'],
+            nature: ['🌻','🌼','🌷','🌹','🌲','🌵','🍀','🍁','🍄','🐚','🌿','🪵','🪨','🍂'],
+            animals: ['🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐸','🐵','🐤','🦉','🦋','🐝','🐞'], 
+            sweets: ['🍦','🍧','🍨','🍩','🍪','🎂','🍰','🧁','🍫','🍬','🍭','🍯','🥞','🧇'],
+            shapes: ['❤️','⭐','🔷','🟣','🟩','🟧','🔺','💠','🌀','☀️','🌙','☁️'],
+            school: ['📚','✏️','✂️','📏','🎒','📎','🖍️','🖌️','🖊️','📒','🏫','🚌','💾','📌'],
+            home: ['🏠','🛏️','🛋️','🪑','🚪','🔑','🕰️','🪴','🖼️','🧸','🛁','🧼','🥣','🥄']
+        };
+
+        // FIXED SCHEMES: P=Primary(Jar,Title), S=Secondary(Cloud,Grid), A=Accent(Answer)
+        const schemes = [
+            { p:'#FF9F43', s:'#54a0ff', a:'#ff6b6b' }, // Sunshine (Orange)
+            { p:'#2ecc71', s:'#3498db', a:'#e74c3c' }, // Mint (Green)
+            { p:'#9b59b6', s:'#f1c40f', a:'#e67e22' }, // Berry (Purple)
+            { p:'#3498db', s:'#34495e', a:'#f1c40f' }, // Ocean (Blue)
+            { p:'#ff7979', s:'#badc58', a:'#686de0' }  // Bubblegum (Pink) -> NOW PINK IS PRIMARY!
+        ];
+
+        // 12 Languages (No Hebrew)
+        const i18n = {
+            en: { t:"HOW MANY?", s:"Count the items!", n:"Name:", c:"Class:", d:"Date:" },
+            id: { t:"ADA BERAPA?", s:"Hitung jumlahnya!", n:"Nama:", c:"Kelas:", d:"Tgl:" },
+            es: { t:"¿CUÁNTOS HAY?", s:"¡Cuenta los objetos!", n:"Nombre:", c:"Clase:", d:"Fecha:" },
+            fr: { t:"COMBIEN?", s:"Comptez les objets!", n:"Nom:", c:"Classe:", d:"Date:" },
+            de: { t:"WIE VIELE?", s:"Zähle die Objekte!", n:"Name:", c:"Klasse:", d:"Datum:" },
+            it: { t:"QUANTI SONO?", s:"Conta gli oggetti!", n:"Nome:", c:"Classe:", d:"Data:" },
+            pt: { t:"QUANTOS SÃO?", s:"Conte os objetos!", n:"Nome:", c:"Turma:", d:"Data:" },
+            nl: { t:"HOEVEEL?", s:"Tel de voorwerpen!", n:"Naam:", c:"Klas:", d:"Datum:" },
+            tr: { t:"KAÇ TANE?", s:"Nesneleri say!", n:"İsim:", c:"Sınıf:", d:"Tarih:" },
+            pl: { t:"ILE JEST?", s:"Policz przedmioty!", n:"Imię:", c:"Klasa:", d:"Data:" },
+            ru: { t:"СКОЛЬКО?", s:"Посчитай предметы!", n:"Имя:", c:"Класс:", d:"Дата:" },
+            jp: { t:"いくつある？", s:"かぞえてみよう！", n:"なまえ:", c:"クラス:", d:"ひづけ:" }
+        };
+
+        let showSol = false;
+        let gameState = []; // Stores the numbers so we don't reshuffle accidentally
+
+        // --- INIT ---
+        window.onload = () => {
+            renderColors();
+            applyScheme(0);
+            generateData();
+            adjustScale();
+            window.addEventListener('resize', adjustScale);
+        };
+
+        function adjustScale() {
+            const paper = document.getElementById('paper');
+            const preview = document.querySelector('.preview-area');
+            const scale = Math.min((preview.offsetWidth - 40) / paper.offsetWidth, 1);
+            paper.style.transform = `scale(${scale})`;
+        }
+
+        // --- COLORS ---
+        function renderColors() {
+            const c = document.getElementById('colorContainer');
+            schemes.forEach((s, i) => {
+                const btn = document.createElement('div');
+                btn.className = 'color-btn';
+                btn.style.background = s.p; // Show PRIMARY color on button
+                btn.onclick = () => applyScheme(i);
+                c.appendChild(btn);
+            });
+        }
+
+        function applyScheme(idx) {
+            const s = schemes[idx];
+            const r = document.documentElement.style;
+            r.setProperty('--primary', s.p);
+            r.setProperty('--secondary', s.s);
+            r.setProperty('--accent', s.a);
+            r.setProperty('--card-border', s.p + '40'); // Transparent version for card border
+            r.setProperty('--jar-bg', s.p + '20'); // Transparent version for jar inside
+            document.querySelectorAll('.color-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+        }
+
+        // --- TEXT ---
+        function updateText(id, val) { document.getElementById(id).innerText = val; }
+
+        function changeLanguage() {
+            const lang = document.getElementById('langSelect').value;
+            const d = i18n[lang];
+            
+            // Update Inputs
+            document.getElementById('inpTitle').value = d.t;
+            document.getElementById('inpSub').value = d.s;
+            document.getElementById('inpName').value = d.n;
+            document.getElementById('inpClass').value = d.c;
+            document.getElementById('inpDate').value = d.d;
+
+            // Update View
+            updateText('outTitle', d.t);
+            updateText('outSub', d.s);
+            updateText('lblN', d.n);
+            updateText('lblC', d.c);
+            updateText('lblD', d.d);
+        }
+
+        function toggleSol() {
+            showSol = !showSol;
+            document.getElementById('btnSol').classList.toggle('active', showSol);
+            renderGrid(); // Only re-render, don't regen numbers
+        }
+
+        // --- LOGIC ---
+        function generateData() {
+            gameState = [];
+            const theme = document.getElementById('themeSelect').value;
+            const [min, max] = document.getElementById('rangeSelect').value.split('-').map(Number);
+            
+            for (let i = 0; i < 6; i++) {
+                const targetNum = Math.floor(Math.random() * (max - min + 1)) + min;
+                const iconSet = icons[theme];
+                const mainIcon = iconSet[Math.floor(Math.random() * iconSet.length)];
+                
+                // Pre-calculate properties so they don't jump around
+                let items = [];
+                for(let j=0; j<targetNum; j++) {
+                    items.push({
+                        rot: (Math.random() * 30) - 15,
+                        scale: 0.9 + (Math.random() * 0.2)
+                    });
+                }
+
+                // Distractors
+                let choices = [targetNum];
+                while(choices.length < 3) {
+                    let offset = Math.floor(Math.random() * 5) - 2; 
+                    let fake = targetNum + offset;
+                    if(fake > 0 && !choices.includes(fake)) choices.push(fake);
+                }
+                choices.sort(() => Math.random() - 0.5);
+
+                gameState.push({ target: targetNum, icon: mainIcon, items: items, choices: choices });
+            }
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            const containerStyle = document.getElementById('styleSelect').value;
+            const mode = document.getElementById('modeSelect').value;
+
+            gameState.forEach(data => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                // Container
+                const contArea = document.createElement('div');
+                contArea.className = 'container-area';
+                const visual = document.createElement('div');
+                visual.className = `style-base ${containerStyle}`; // generic class + specific
+                
+                // DYNAMIC SIZING LOGIC (Prevent Overflow)
+                const count = data.items.length;
+                let fontSize = '2.5rem';
+                if(count > 8) fontSize = '2rem';
+                if(count > 12) fontSize = '1.5rem';
+                if(count > 16) fontSize = '1.2rem';
+
+                data.items.forEach(prop => {
+                    const el = document.createElement('span');
+                    el.className = 'icon-item';
+                    el.innerText = data.icon;
+                    el.style.fontSize = fontSize;
+                    el.style.transform = `rotate(${prop.rot}deg) scale(${prop.scale})`;
+                    visual.appendChild(el);
+                });
+                
+                contArea.appendChild(visual);
+                card.appendChild(contArea);
+
+                // Answer
+                const ansArea = document.createElement('div');
+                ansArea.className = `answer-area ${mode}`;
+
+                if (mode === 'mode-write') {
+                    const box = document.createElement('div');
+                    box.className = 'answer-box';
+                    if(showSol) {
+                        box.style.borderColor = 'var(--accent)';
+                        box.style.color = 'var(--accent)';
+                        box.style.background = '#ffeaa7';
+                        box.innerText = data.target;
+                    }
+                    ansArea.appendChild(box);
+                } else {
+                    data.choices.forEach(num => {
+                        const circle = document.createElement('div');
+                        circle.className = 'choice-circle';
+                        circle.innerText = num;
+                        if(showSol && num === data.target) {
+                            circle.classList.add('correct-answer');
+                        }
+                        ansArea.appendChild(circle);
+                    });
+                }
+
+                card.appendChild(ansArea);
+                grid.appendChild(card);
+            });
+        }
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.getElementById("paper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        backgroundColor: "#ffffff",
+        useCORS: true
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "how-many-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>

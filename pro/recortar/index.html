@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Scissor Skills Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&family=Balsamiq+Sans:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default: Pastel Craft Theme */
+            --primary: #FF9F43;
+            --secondary: #54a0ff;
+            --accent: #ff6b6b;
+            --bg-body: #f7f1e3;
+            --text-main: #2d3436;
+            --strip-bg: #ffffff;
+            --line-color: #2d3436;
+            --border-style: 3px dashed #cbd5e0;
+        }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        
+        body {
+            margin: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(#d1ccc0 10%, transparent 11%);
+            background-size: 20px 20px;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 360px;
+            background: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            z-index: 20;
+            border-right: 1px solid #ccc;
+            flex-shrink: 0;
+        }
+
+        h2 { margin: 0; font-family: 'Balsamiq Sans', cursive; color: var(--secondary); font-size: 1.8rem; border-bottom: 3px dashed #eee; padding-bottom: 10px; text-align: center; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 5px; }
+        label { font-weight: 800; font-size: 0.75rem; color: #636e72; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select, input, button {
+            width: 100%; padding: 10px; border: 2px solid #dfe6e9; border-radius: 12px;
+            font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.2s; cursor: pointer;
+        }
+        select:focus, input:focus { border-color: var(--secondary); background: #fdfdfd; }
+
+        /* Color Buttons */
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .color-btn {
+            width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid white; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s;
+        }
+        .color-btn.active { box-shadow: 0 0 0 3px var(--secondary); transform: scale(1.1); }
+
+        /* Editor Box */
+        .editor-box { background: #f1f2f6; padding: 12px; border-radius: 12px; border: 1px solid #ced6e0; }
+        .editor-box h3 { margin: 0 0 8px 0; font-size: 0.8rem; color: #2d3436; font-weight: 900; text-transform: uppercase; }
+
+        .btn-gen { background: var(--secondary); color: white; border: none; font-weight: 800; box-shadow: 0 4px 0 rgba(0,0,0,0.15); margin-top: 5px; }
+        .btn-gen:active { transform: translateY(4px); box-shadow: none; }
+        
+        .btn-print { background: #2d3436; color: white; border: none; font-weight: 800; margin-top: auto; padding: 15px; font-size: 1rem; border-radius: 12px; }
+
+        /* --- PREVIEW AREA --- */
+        .preview-area {
+            flex: 1;
+            /* background: #b2bec3; */
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: auto;
+            padding: 40px 20px;
+        }
+
+        .paper {
+            width: 210mm;
+            height: 297mm; /* A4 Fixed */
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 15mm;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transform-origin: top center;
+            flex-shrink: 0;
+            overflow: hidden;
+            border-radius: 5px;
+        }
+
+        /* --- HEADER --- */
+        .header { 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            margin-bottom: 20px; border-bottom: 4px dashed var(--secondary); padding-bottom: 10px; 
+        }
+        .title h1 { 
+            font-family: 'Balsamiq Sans', cursive; font-size: 3rem; margin: 0; 
+            color: var(--secondary); line-height: 0.8;
+        }
+        .title p { margin: 5px 0 0; color: #636e72; font-weight: 700; font-size: 1rem; }
+        
+        .info { text-align: right; font-size: 0.9rem; color: #636e72; }
+        .info-row { display: flex; gap: 5px; justify-content: flex-end; align-items: baseline; margin-bottom: 5px; }
+        .line { border-bottom: 2px dotted #b2bec3; width: 140px; display: inline-block; text-align: center; }
+
+        /* --- STRIPS DESIGN (NEW) --- */
+        .strips-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .strip {
+            flex: 1;
+            border: var(--border-style);
+            border-radius: 20px;
+            background: var(--strip-bg);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            position: relative;
+        }
+
+        /* Zones */
+        .start-zone, .end-zone {
+            width: 70px;
+            height: 70px;
+            background: #fff;
+            border: 2px solid #eee;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.05);
+        }
+        .start-zone { border-color: var(--secondary); background: #f0f8ff; }
+        .end-zone { border-color: var(--primary); background: #fff8f0; }
+
+        .icon { font-size: 2.2rem; line-height: 1; }
+        .scissor-icon { font-size: 1rem; color: var(--secondary); margin-bottom: 2px; transform: rotate(-90deg); }
+
+        /* SVG PATH AREA */
+        .path-area {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            overflow: visible;
+            margin: 0 10px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        path {
+            fill: none;
+            stroke: var(--line-color);
+            stroke-width: 4;
+            stroke-dasharray: 12, 12;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Safety Zone Highlight */
+        path.safety-zone {
+            stroke: yellow;
+            stroke-width: 25;
+            stroke-dasharray: 0;
+            opacity: 0.4;
+            display: none;
+            stroke-linecap: round;
+        }
+        .show-safety path.safety-zone { display: block; }
+
+        /* Footer */
+        .footer {
+            text-align: center; font-size: 0.8rem; color: #b2bec3; 
+            margin-top: 15px; border-top: 1px solid #eee; padding-top: 8px;
+        }
+
+        /* Editable */
+        [contenteditable] { border-bottom: 1px dashed transparent; transition: 0.2s; }
+        [contenteditable]:hover { background: rgba(255, 234, 167, 0.4); border-bottom: 1px solid var(--secondary); }
+
+        @media print {
+            body { background: white; display: block; height: auto; }
+            .sidebar { display: none; }
+            .preview-area { padding: 0; background: white; display: block; }
+            .paper { 
+                margin: 0; box-shadow: none; 
+                width: 100%; height: 100vh;
+                page-break-after: avoid; 
+                transform: none !important;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>✂️ Scissor Skills</h2>
+
+        <div class="control-group">
+            <label>Color Theme</label>
+            <div class="color-grid" id="colorContainer"></div>
+        </div>
+
+        <div class="editor-box">
+            <h3>📝 EDIT TEXTS</h3>
+            <div class="control-group">
+                <input type="text" id="inpTitle" value="LET'S CUT!" oninput="updateText('outTitle', this.value)">
+                <input type="text" id="inpSub" value="Follow the lines carefully." oninput="updateText('outSub', this.value)">
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:5px;">
+                <input type="text" id="inpName" value="Name:" oninput="updateText('lblN', this.value)">
+                <input type="text" id="inpClass" value="Class:" oninput="updateText('lblC', this.value)">
+                <input type="text" id="inpDate" value="Date:" oninput="updateText('lblD', this.value)">
+            </div>
+            <div class="control-group" style="margin-top:5px;">
+                <input type="text" id="inpFooter" value="Created with KidzWorksheet" oninput="updateText('outFooter', this.value)">
+            </div>
+        </div>
+
+        <div class="control-group" style="margin-top:10px;">
+            <label>Language (12 Options)</label>
+            <select id="langSelect" onchange="changeLanguage()">
+                <option value="en">🇺🇸 English</option>
+                <option value="id">🇮🇩 Indonesia</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="nl">🇳🇱 Nederlands</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="pl">🇵🇱 Polski</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="jp">🇯🇵 日本語</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Story Icons</label>
+            <select id="themeSelect" onchange="shuffleAndRender()">
+                <option value="mix">🎲 Mix All</option>
+                <option value="nature">🐝 Bee & Flower</option>
+                <option value="space">🚀 Rocket & Moon</option>
+                <option value="pets">🐱 Cat & Food</option>
+                <option value="school">✏️ Pencil & Paper</option>
+                <option value="ocean">🐟 Fish & Coral</option>
+                <option value="cars">🚗 Car & House</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Pattern Style</label>
+            <select id="patternSelect" onchange="shuffleAndRender()">
+                <option value="mix">🔀 Mix (Random)</option>
+                <option value="straight">📏 Straight (Very Easy)</option>
+                <option value="wave">🌊 Gentle Wave (Easy)</option>
+                <option value="zigzag">⚡ Big Zigzag (Medium)</option>
+                <option value="steps">🏰 Wide Steps (Hard)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Visual Aid</label>
+            <select id="aidSelect" onchange="toggleSafety()">
+                <option value="off">🚫 Standard Lines</option>
+                <option value="on">✨ Show Safety Highlight</option>
+            </select>
+        </div>
+
+        <button class="btn-gen" onclick="shuffleAndRender()">🎲 SHUFFLE ITEMS & PATTERNS</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT PDF (A4)</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="preview-area">
+        <div class="paper" id="paper">
+            
+            <div class="header">
+                <div class="title">
+                    <h1 id="outTitle" contenteditable="true">LET'S CUT!</h1>
+                    <p id="outSub" contenteditable="true">Follow the lines carefully.</p>
+                </div>
+                <div class="info">
+                    <div class="info-row"><span class="info-label" id="lblN" contenteditable="true">Name:</span> <span class="line" contenteditable="true"></span></div>
+                    <div class="info-row"><span class="info-label" id="lblC" contenteditable="true">Class:</span> <span class="line" contenteditable="true"></span></div>
+                    <div class="info-row"><span class="info-label" id="lblD" contenteditable="true">Date:</span> <span class="line" contenteditable="true"></span></div>
+                </div>
+            </div>
+
+            <div class="strips-container" id="stripsContainer">
+                </div>
+
+            <div class="footer" id="outFooter" contenteditable="true">
+                Created with KidzWorksheet
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const themeData = {
+            nature: { s: ['🐝','🦋','🐞','🐦'], e: ['🌻','🌷','🍄','🌳'] },
+            space: { s: ['🚀','👽','☄️','👨‍🚀'], e: ['🌑','🪐','⭐','🌍'] },
+            pets: { s: ['🐱','🐹','🐰','🐢'], e: ['🐟','🥜','🥕','🥬'] },
+            school: { s: ['✏️','✂️','🖍️','🚌'], e: ['📖','📄','🎨','🏫'] },
+            ocean: { s: ['🐟','🐬','🦀','🐙'], e: ['🪸','🐚','⚓','🏝️'] },
+            cars: { s: ['🚗','🚚','🚑','🚒'], e: ['🏡','🏁','⛽','🔥'] }
+        };
+
+        const schemes = [
+            { p:'#FF9F43', s:'#54a0ff', bg:'#fdfdfd' }, // Orange/Blue
+            { p:'#2ecc71', s:'#3498db', bg:'#f0fff4' }, // Green/Blue
+            { p:'#9b59b6', s:'#f1c40f', bg:'#fbf5ff' }, // Purple/Yellow
+            { p:'#ff6b6b', s:'#ff9ff3', bg:'#fff0f5' }, // Red/Pink
+            { p:'#48dbfb', s:'#1dd1a1', bg:'#e0fcff' }  // Cyan/Mint
+        ];
+
+        const i18n = {
+            en: { t:"LET'S CUT!", s:"Follow the lines carefully.", n:"Name:", c:"Class:", d:"Date:" },
+            id: { t:"AYO MENGGUNTING!", s:"Ikuti garis dengan hati-hati.", n:"Nama:", c:"Kelas:", d:"Tgl:" },
+            es: { t:"¡A RECORTAR!", s:"Sigue las líneas con cuidado.", n:"Nombre:", c:"Clase:", d:"Fecha:" },
+            fr: { t:"DÉCOUPAGE", s:"Suivez les lignes.", n:"Nom:", c:"Classe:", d:"Date:" },
+            de: { t:"SCHNEIDEÜBUNG", s:"Folge den Linien.", n:"Name:", c:"Klasse:", d:"Datum:" },
+            nl: { t:"KNIPPEN", s:"Volg de lijnen.", n:"Naam:", c:"Klas:", d:"Datum:" },
+            it: { t:"RITAGLIARE", s:"Segui le linee.", n:"Nome:", c:"Classe:", d:"Data:" },
+            pt: { t:"RECORTAR", s:"Siga as linhas.", n:"Nome:", c:"Turma:", d:"Data:" },
+            tr: { t:"KESME ZAMANI", s:"Çizgileri takip et.", n:"İsim:", c:"Sınıf:", d:"Tarih:" },
+            pl: { t:"WYCINANKI", s:"Tnij wzdłuż linii.", n:"Imię:", c:"Klasa:", d:"Data:" },
+            ru: { t:"ВЫРЕЗАЙ", s:"Следуй по линиям.", n:"Имя:", c:"Класс:", d:"Дата:" },
+            jp: { t:"はさみのれんしゅう", s:"せんのうえをきろう。", n:"なまえ:", c:"クラス:", d:"ひづけ:" }
+        };
+
+        // --- INIT ---
+        window.onload = () => {
+            renderColors();
+            applyScheme(0);
+            shuffleAndRender();
+            adjustScale();
+            window.addEventListener('resize', adjustScale);
+        };
+
+        function adjustScale() {
+            const paper = document.getElementById('paper');
+            const preview = document.querySelector('.preview-area');
+            const scale = Math.min((preview.offsetWidth - 40) / paper.offsetWidth, 1);
+            paper.style.transform = `scale(${scale})`;
+        }
+
+        // --- COLORS ---
+        function renderColors() {
+            const c = document.getElementById('colorContainer');
+            schemes.forEach((s, i) => {
+                const btn = document.createElement('div');
+                btn.className = 'color-btn';
+                btn.style.background = s.p;
+                btn.onclick = () => applyScheme(i);
+                c.appendChild(btn);
+            });
+        }
+
+        function applyScheme(idx) {
+            const s = schemes[idx];
+            const r = document.documentElement.style;
+            r.setProperty('--primary', s.p);
+            r.setProperty('--secondary', s.s);
+            r.setProperty('--strip-bg', s.bg);
+            r.setProperty('--border-style', `3px dashed ${s.s}`);
+            document.querySelectorAll('.color-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+        }
+
+        // --- TEXT ---
+        function updateText(id, val) { document.getElementById(id).innerText = val; }
+
+        function changeLanguage() {
+            const lang = document.getElementById('langSelect').value;
+            const d = i18n[lang] || i18n.en;
+            document.getElementById('inpTitle').value = d.t;
+            document.getElementById('inpSub').value = d.s;
+            document.getElementById('inpName').value = d.n;
+            document.getElementById('inpClass').value = d.c;
+            document.getElementById('inpDate').value = d.d;
+            updateText('outTitle', d.t);
+            updateText('outSub', d.s);
+            updateText('lblN', d.n);
+            updateText('lblC', d.c);
+            updateText('lblD', d.d);
+        }
+
+        function toggleSafety() {
+            const val = document.getElementById('aidSelect').value;
+            const container = document.getElementById('stripsContainer');
+            if(val === 'on') container.classList.add('show-safety');
+            else container.classList.remove('show-safety');
+        }
+
+        // --- CORE GENERATION LOGIC ---
+        function shuffleAndRender() {
+            const container = document.getElementById('stripsContainer');
+            container.innerHTML = '';
+            
+            const themeSel = document.getElementById('themeSelect').value;
+            const patternSel = document.getElementById('patternSelect').value;
+            const isSafety = document.getElementById('aidSelect').value === 'on';
+
+            if(isSafety) container.classList.add('show-safety');
+            else container.classList.remove('show-safety');
+
+            // 1. Determine Themes for 4 strips
+            let stripThemes = [];
+            const keys = Object.keys(themeData);
+            
+            for(let i=0; i<4; i++) {
+                let k = themeSel;
+                if(themeSel === 'mix') {
+                    // Randomly pick a theme key
+                    k = keys[Math.floor(Math.random() * keys.length)];
+                }
+                const t = themeData[k];
+                // Random pair from this theme
+                const randIdx = Math.floor(Math.random() * t.s.length);
+                stripThemes.push({ s: t.s[randIdx], e: t.e[randIdx] });
+            }
+
+            // 2. Determine Patterns for 4 strips
+            let stripPatterns = [];
+            const pTypes = ['straight', 'wave', 'zigzag', 'steps'];
+            
+            for(let i=0; i<4; i++) {
+                if(patternSel === 'mix') {
+                    // Force variety if mix: ensure we don't just repeat straight lines
+                    // Use modulo to cycle through types, then add random offset
+                    const type = pTypes[(i + Math.floor(Math.random()*2)) % pTypes.length];
+                    stripPatterns.push(type);
+                } else {
+                    stripPatterns.push(patternSel);
+                }
+            }
+
+            // 3. Render
+            stripThemes.forEach((icons, idx) => {
+                const strip = document.createElement('div');
+                strip.className = 'strip';
+                
+                const type = stripPatterns[idx];
+                const d = getPathData(type, 600, 80); // Width 600, Height 80
+
+                strip.innerHTML = `
+                    <div class="start-zone">
+                        <div class="scissor-icon">✂️</div>
+                        <div class="icon">${icons.s}</div>
+                    </div>
+                    <div class="path-area">
+                        <svg viewBox="0 0 600 80" preserveAspectRatio="none">
+                            <path class="safety-zone" d="${d}" />
+                            <path d="${d}" />
+                        </svg>
+                    </div>
+                    <div class="end-zone">
+                        <div class="icon">${icons.e}</div>
+                    </div>
+                `;
+                container.appendChild(strip);
+            });
+        }
+
+        // --- NEW SVG PATH LOGIC (EASIER FOR KIDS) ---
+        function getPathData(type, w, h) {
+            const mid = h/2;
+            let d = `M 0,${mid} `;
+            
+            if(type === 'straight') {
+                d += `L ${w},${mid}`;
+            } 
+            else if(type === 'wave') {
+                // Wide, gentle waves (only 2-3 humps)
+                const step = 150; 
+                const amp = 25; 
+                let flip = Math.random() > 0.5 ? 1 : -1; // Randomize start direction
+                
+                for(let x=0; x<w; x+=step) {
+                    // Q control-point end-point
+                    // gentle curve
+                    d += `Q ${x + step/2},${mid + (amp*flip)} ${x + step},${mid} `;
+                    flip *= -1;
+                }
+            } 
+            else if(type === 'zigzag') {
+                // Big, wide zigzags (fewer peaks)
+                const step = 100;
+                const amp = 30;
+                let flip = Math.random() > 0.5 ? 1 : -1;
+
+                for(let x=0; x<w; x+=step) {
+                    d += `L ${x + step/2},${mid + (amp*flip)} L ${x + step},${mid} `;
+                    flip *= -1;
+                }
+            } 
+            else if(type === 'steps') {
+                // Wide steps (Castlements)
+                const step = 120;
+                const amp = 25;
+                let flip = Math.random() > 0.5 ? 1 : -1;
+
+                for(let x=0; x<w; x+=step) {
+                    // Horizontal then Vertical
+                    d += `L ${x + step/4},${mid} L ${x + step/4},${mid + (amp*flip)} L ${x + (step*0.75)},${mid + (amp*flip)} L ${x + (step*0.75)},${mid} L ${x + step},${mid} `;
+                    flip *= -1;
+                }
+            }
+
+            return d;
+        }
+
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.getElementById("paper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "scissor-skills-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+
+</body>
+</html>

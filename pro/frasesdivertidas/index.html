@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - SentenceCraft Kids</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Child Friendly Theme - "Bubblegum & Sky" */
+            --bg-app: #e0f2fe; /* Light Blue */
+            --panel-bg: #ffffff;
+            --panel-border: #bfdbfe;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            
+            --accent-primary: #0ea5e9; /* Sky Blue */
+            --accent-hover: #0284c7;
+            --accent-secondary: #f472b6; /* Pink */
+            --accent-tertiary: #facc15; /* Yellow */
+            
+            /* Print Variables */
+            --print-bg: #ffffff;
+            
+            /* Spacing & Roundness */
+            --radius-xl: 24px;
+            --radius-md: 12px;
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-print-color-adjust: exact; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* --- LAYOUT GRID --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 340px 1fr 300px;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- SIDEBARS (UI) --- */
+        .sidebar {
+            background: var(--panel-bg);
+            border-right: 2px solid var(--panel-border);
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.02);
+            z-index: 10;
+        }
+
+        .sidebar.right {
+            border-left: 2px solid var(--panel-border);
+            border-right: none;
+            background: #f8fafc;
+        }
+
+        h1.logo { font-size: 1.6rem; color: var(--accent-primary); margin: 0; display: flex; align-items: center; gap: 10px; }
+        h1.logo i { color: var(--accent-secondary); }
+        
+        h3 { font-size: 1rem; color: var(--text-main); margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        h3 i { color: var(--accent-primary); }
+
+        .control-group {
+            background: #f0f9ff;
+            padding: 18px;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--panel-border);
+        }
+
+        label { display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+        
+        input[type="text"], select, input[type="number"] {
+            width: 100%;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            color: var(--text-main);
+            padding: 12px 15px;
+            border-radius: var(--radius-md);
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: 0.2s;
+            box-shadow: 0 4px 0 #e2e8f0;
+            margin-bottom: 5px;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-primary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--accent-primary);
+        }
+
+        .color-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 5px;
+            border-radius: var(--radius-md);
+            border: 2px solid #e2e8f0;
+        }
+        input[type="color"] {
+            border: none;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+            box-shadow: none;
+            margin: 0;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 0 #0369a1;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-primary:active { transform: translateY(4px); box-shadow: 0 0 0 #0369a1; }
+        .btn-shuffle { background: var(--accent-secondary); box-shadow: 0 4px 0 #be185d; }
+        .btn-shuffle:active { box-shadow: 0 0 0 #be185d; }
+
+        /* --- PREVIEW AREA --- */
+        .preview-area {
+            background-color: #cbd5e1;
+            background-image: radial-gradient(#94a3b8 1px, transparent 1px);
+            background-size: 20px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .paper {
+            width: 210mm;
+            min-height: 297mm;
+            height: auto;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 15mm;
+            display: flex;
+            flex-direction: column;
+            color: black;
+            font-family: 'Nunito', sans-serif;
+            position: relative;
+        }
+
+        /* --- WORKSHEET CONTENT --- */
+        .ws-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px dashed #e2e8f0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .ws-title-block h1 { margin: 0; font-size: 28pt; font-family: 'Fredoka', sans-serif; color: var(--accent-primary); }
+        .ws-title-block p { margin: 5px 0 0; font-size: 14pt; color: #64748b; }
+
+        .ws-info-block { text-align: right; font-size: 12pt; color: #334155; }
+        .ws-info-line { margin-bottom: 8px; }
+        .ws-info-line span { font-weight: 800; color: var(--accent-secondary); }
+
+        .ws-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            flex-grow: 1;
+        }
+
+        /* Question Styles */
+        .q-card {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            page-break-inside: avoid;
+        }
+
+        .q-number {
+            background: var(--accent-tertiary);
+            color: #713f12;
+            font-weight: 800;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 12pt;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .q-body { flex-grow: 1; }
+
+        .q-text {
+            font-size: 18pt;
+            font-weight: 700;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            color: var(--accent-primary); /* Default */
+        }
+
+        .scramble-box {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .bubble {
+            background: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: #475569;
+            font-size: 14pt;
+        }
+
+        .writing-line {
+            width: 100%;
+            height: 45px;
+            border-bottom: 2px solid #334155;
+            position: relative;
+        }
+        .writing-line::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+
+        .answer-key-section {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 4px double #ccc;
+            page-break-before: always;
+        }
+        .ak-title { font-weight: bold; margin-bottom: 10px; text-transform: uppercase; color: #999; }
+        .ak-list { font-size: 10pt; color: #555; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .ak-note { font-size: 11pt; color: #555; font-style: italic; grid-column: 1 / -1; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+
+        .ws-footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10pt;
+            color: #94a3b8;
+        }
+
+        /* --- PRINT MEDIA QUERY --- */
+        @media print {
+            .sidebar, .app-container { display: block; }
+            .sidebar { display: none; }
+            body { background: white; height: auto; display: block; }
+            .preview-area { padding: 0; background: white; display: block; }
+            .paper { box-shadow: none; margin: 0; width: 100%; padding: 0; }
+            @page { size: A4; margin: 15mm; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="sidebar">
+            <h1 class="logo"><i class="fa-solid fa-shapes"></i> SentenceCraft</h1>
+
+            <div class="control-group">
+                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Create</h3>
+                <label>Exercise Type</label>
+                <select id="modeSelect">
+                    <option value="arrange">🧩 Arrange the Words</option>
+                    <option value="missing">🕳️ Fill in the Blanks</option>
+                    <option value="copy">✏️ Copy the Sentence</option>
+                    <option value="expander">🚀 Sentence Expander (Free Write)</option>
+                </select>
+                
+                <label>Language</label>
+                <select id="langSelect">
+                    <option value="en">English 🇺🇸</option>
+                    <option value="id">Indonesia 🇮🇩</option>
+                    <option value="es">Spanish 🇪🇸</option>
+                    <option value="pt">Portuguese 🇵🇹</option>
+                    <option value="fr">French 🇫🇷</option>
+                    <option value="it">Italian 🇮🇹</option>
+                    <option value="tl">Tagalog 🇵🇭</option>
+                </select>
+
+                <label>Level</label>
+                <select id="diffSelect">
+                    <option value="1">⭐ Beginner</option>
+                    <option value="2">⭐⭐ Intermediate</option>
+                    <option value="3">⭐⭐⭐ Advanced</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fa-solid fa-palette"></i> Style</h3>
+                <label>Theme Color (Applies to all text)</label>
+                <div class="color-wrapper">
+                    <input type="color" id="colorPicker" value="#0ea5e9">
+                    <span class="color-label">Pick a color</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="window.print()">
+                <i class="fa-solid fa-print"></i> Print Worksheet
+            </button>
+			<button class="btn-primary" style="background:#64748b; box-shadow:0 4px 0 #334155;" onclick="saveAsImage()">
+    <i class="fa-solid fa-image"></i> Save as Image
+</button>
+
+        </div>
+
+        <div class="preview-area">
+            <div class="paper" id="worksheetPaper">
+                <div class="ws-header">
+                    <div class="ws-title-block">
+                        <h1 id="printTitle">Sentence Fun!</h1>
+                        <p id="printSubtitle">Let's practice writing</p>
+                    </div>
+                    <div class="ws-info-block">
+                        <div class="ws-info-line"><span id="printLabelName">Name:</span> __________________</div>
+                        <div class="ws-info-line"><span id="printLabelClass">Class:</span> __________________</div>
+                        <div class="ws-info-line"><span id="printLabelDate">Date:</span> __________________</div>
+                    </div>
+                </div>
+
+                <div class="ws-grid" id="worksheetGrid">
+                    </div>
+
+                <div id="answerKeyContainer" class="answer-key-section" style="display:none;">
+                    <div class="ak-title">Answer Key</div>
+                    <div class="ak-list" id="answerKeyList"></div>
+                </div>
+
+                <div class="ws-footer" id="printFooter">
+                    Made with SentenceCraft
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar right">
+            <div class="control-group">
+                <h3><i class="fa-solid fa-heading"></i> Text Info</h3>
+                <label>Title</label>
+                <input type="text" id="wsTitle" value="Sentence Fun!">
+                
+                <label>Subtitle</label>
+                <input type="text" id="wsSubtitle" value="Let's practice writing">
+
+                <label>Footer</label>
+                <input type="text" id="wsFooter" value="Made with SentenceCraft">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fa-solid fa-id-card"></i> Label Editor</h3>
+                <label>Name Label</label>
+                <input type="text" id="labelNameInput" value="Name:">
+                
+                <label>Class Label</label>
+                <input type="text" id="labelClassInput" value="Class:">
+                
+                <label>Date Label</label>
+                <input type="text" id="labelDateInput" value="Date:">
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fa-solid fa-sliders"></i> Options</h3>
+                <label>How many questions? (Max 15)</label>
+                <input type="number" id="qCount" value="5" min="1" max="15">
+                
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">
+                    <label style="margin:0">Show Answer Key</label>
+                    <input type="checkbox" id="showAnswers" style="width:20px; height:20px;">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fa-solid fa-dice"></i> Content</h3>
+                <button class="btn-primary btn-shuffle" onclick="app.generateContent()">
+                    <i class="fa-solid fa-rotate-right"></i> Mix it Up!
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- UI STRINGS (For Headers & Labels) ---
+        const UI_STRINGS = {
+            en: { title: "Sentence Fun!", subtitle: "Let's practice writing", name: "Name:", class: "Class:", date: "Date:", footer: "Made with SentenceCraft" },
+            id: { title: "Asyiknya Kalimat!", subtitle: "Ayo berlatih menulis", name: "Nama:", class: "Kelas:", date: "Tanggal:", footer: "Dibuat dengan SentenceCraft" },
+            es: { title: "¡Frases Divertidas!", subtitle: "Practiquemos la escritura", name: "Nombre:", class: "Clase:", date: "Fecha:", footer: "Hecho con SentenceCraft" },
+            pt: { title: "Frases Divertidas!", subtitle: "Vamos praticar a escrita", name: "Nome:", class: "Turma:", date: "Data:", footer: "Feito com SentenceCraft" },
+            fr: { title: "Phrases Amusantes!", subtitle: "Pratiquons l'écriture", name: "Nom:", class: "Classe:", date: "Date:", footer: "Fait avec SentenceCraft" },
+            it: { title: "Frasi Divertenti!", subtitle: "Esercitiamoci a scrivere", name: "Nome:", class: "Classe:", date: "Data:", footer: "Fatto con SentenceCraft" },
+            tl: { title: "Masayang Pangungusap!", subtitle: "Magsanay tayong magsulat", name: "Pangalan:", class: "Klase:", date: "Petsa:", footer: "Gawa sa SentenceCraft" }
+        };
+
+        // --- SAFE DB (Internal Only) ---
+        // Rules applied: No animals, No women, No music/religion.
+        const SENTENCE_DB = {
+            en: [
+                { text: "The boy kicks the ball.", level: 1 }, { text: "My father drives a blue car.", level: 1 },
+                { text: "The sun is very hot today.", level: 1 }, { text: "He reads a book in the library.", level: 2 },
+                { text: "The red apple is on the table.", level: 1 }, { text: "The tall man builds a house.", level: 2 },
+                { text: "We play football in the park.", level: 2 }, { text: "The computer is on the desk.", level: 1 },
+                { text: "The airplane flies in the sky.", level: 1 }, { text: "Grandfather plants a tree.", level: 3 },
+                { text: "The student writes with a pencil.", level: 2 }, { text: "The train moves very fast.", level: 1 },
+                { text: "He helps his brother.", level: 3 }, { text: "The clock on the wall shows time.", level: 2 },
+                { text: "A bright star shines at night.", level: 2 }
+            ],
+            id: [
+                { text: "Anak laki-laki itu menendang bola.", level: 1 }, { text: "Ayah saya mengendarai mobil biru.", level: 1 },
+                { text: "Matahari sangat panas hari ini.", level: 1 }, { text: "Dia membaca buku di perpustakaan.", level: 2 },
+                { text: "Apel merah ada di atas meja.", level: 1 }, { text: "Pria tinggi itu membangun rumah.", level: 2 },
+                { text: "Kami bermain sepak bola di taman.", level: 2 }, { text: "Komputer ada di atas meja tulis.", level: 1 },
+                { text: "Pesawat terbang di langit.", level: 1 }, { text: "Kakek menanam pohon.", level: 3 },
+                { text: "Murid itu menulis dengan pensil.", level: 2 }, { text: "Kereta api bergerak sangat cepat.", level: 1 },
+                { text: "Dia membantu adiknya.", level: 3 }, { text: "Jam di dinding menunjukkan waktu.", level: 2 },
+                { text: "Bintang terang bersinar malam ini.", level: 2 }
+            ],
+            es: [
+                { text: "El niño patea la pelota.", level: 1 }, { text: "Mi padre conduce un coche azul.", level: 1 },
+                { text: "El sol está muy caliente hoy.", level: 1 }, { text: "Él lee un libro en la biblioteca.", level: 2 },
+                { text: "La manzana roja está en la mesa.", level: 1 }, { text: "El hombre alto construye una casa.", level: 2 },
+                { text: "Jugamos al fútbol en el parque.", level: 2 }, { text: "La computadora está en el escritorio.", level: 1 },
+                { text: "El avión vuela en el cielo.", level: 1 }, { text: "El abuelo planta un árbol.", level: 3 },
+                { text: "El estudiante escribe con un lápiz.", level: 2 }, { text: "El tren se mueve muy rápido.", level: 1 },
+                { text: "Él ayuda a su hermano.", level: 3 }, { text: "El reloj en la pared muestra la hora.", level: 2 },
+                { text: "Una estrella brilla en la noche.", level: 2 }
+            ],
+            pt: [
+                { text: "O menino chuta a bola.", level: 1 }, { text: "Meu pai dirige um carro azul.", level: 1 },
+                { text: "O sol está muito quente hoje.", level: 1 }, { text: "Ele lê um livro na biblioteca.", level: 2 },
+                { text: "A maçã vermelha está na mesa.", level: 1 }, { text: "O homem alto constrói uma casa.", level: 2 },
+                { text: "Nós jogamos futebol no parque.", level: 2 }, { text: "O computador está na mesa.", level: 1 },
+                { text: "O avião voa no céu.", level: 1 }, { text: "O avô planta uma árvore.", level: 3 },
+                { text: "O estudante escreve com um lápis.", level: 2 }, { text: "O trem se move muito rápido.", level: 1 },
+                { text: "Ele ajuda seu irmão.", level: 3 }, { text: "O relógio na parede mostra a hora.", level: 2 },
+                { text: "Uma estrela brilha na noite.", level: 2 }
+            ],
+            fr: [
+                { text: "Le garçon frappe la balle.", level: 1 }, { text: "Mon père conduit une voiture bleue.", level: 1 },
+                { text: "Le soleil est très chaud aujourd'hui.", level: 1 }, { text: "Il lit un livre dans la bibliothèque.", level: 2 },
+                { text: "La pomme rouge est sur la table.", level: 1 }, { text: "L'homme grand construit une maison.", level: 2 },
+                { text: "Nous jouons au football dans le parc.", level: 2 }, { text: "L'ordinateur est sur le bureau.", level: 1 },
+                { text: "L'avion vole dans le ciel.", level: 1 }, { text: "Grand-père plante un arbre.", level: 3 },
+                { text: "L'étudiant écrit avec un crayon.", level: 2 }, { text: "Le train se déplace très vite.", level: 1 },
+                { text: "Il aide son frère.", level: 3 }, { text: "L'horloge sur le mur indique l'heure.", level: 2 },
+                { text: "Une étoile brille dans la nuit.", level: 2 }
+            ],
+            it: [
+                { text: "Il ragazzo calcia la palla.", level: 1 }, { text: "Mio padre guida un'auto blu.", level: 1 },
+                { text: "Il sole è molto caldo oggi.", level: 1 }, { text: "Lui legge un libro in biblioteca.", level: 2 },
+                { text: "La mela rossa è sul tavolo.", level: 1 }, { text: "L'uomo alto costruisce una casa.", level: 2 },
+                { text: "Giochiamo a calcio nel parco.", level: 2 }, { text: "Il computer è sulla scrivania.", level: 1 },
+                { text: "L'aereo vola nel cielo.", level: 1 }, { text: "Il nonno pianta un albero.", level: 3 },
+                { text: "Lo studente scrive con una matita.", level: 2 }, { text: "Il treno si muove molto velocemente.", level: 1 },
+                { text: "Lui aiuta suo fratello.", level: 3 }, { text: "L'orologio sul muro mostra l'ora.", level: 2 },
+                { text: "Una stella brilla nella notte.", level: 2 }
+            ],
+            tl: [
+                { text: "Ang bata ay sumisipa ng bola.", level: 1 }, { text: "Ang tatay ko ay nagmamaneho ng asul na kotse.", level: 1 },
+                { text: "Ang araw ay napakainit ngayon.", level: 1 }, { text: "Nagbabasa siya ng libro sa aklatan.", level: 2 },
+                { text: "Ang pulang mansanas ay nasa mesa.", level: 1 }, { text: "Ang matangkad na lalaki ay gumagawa ng bahay.", level: 2 },
+                { text: "Naglalaro kami ng football sa parke.", level: 2 }, { text: "Ang kompyuter ay nasa mesa.", level: 1 },
+                { text: "Ang eroplano ay lumilipad sa langit.", level: 1 }, { text: "Si Lolo ay nagtatanim ng puno.", level: 3 },
+                { text: "Ang estudyante ay nagsusulat gamit ang lapis.", level: 2 }, { text: "Ang tren ay umaandar nang mabilis.", level: 1 },
+                { text: "Tinutulungan niya ang kanyang kapatid.", level: 3 }, { text: "Ang orasan sa dingding ay nagpapakita ng oras.", level: 2 },
+                { text: "Isang maliwanag na bituin ang nagniningning.", level: 2 }
+            ]
+        };
+
+        const PRO_MESSAGES = {
+            en: "This is an open-ended creative exercise. Student answers will vary based on their imagination and interpretation of the topic.",
+            id: "Ini adalah latihan kreatif terbuka. Jawaban siswa akan bervariasi berdasarkan imajinasi dan interpretasi mereka terhadap topik.",
+            es: "Este es un ejercicio creativo abierto. Las respuestas variarán según la imaginación e interpretación del tema por parte del estudiante.",
+            pt: "Este é um exercício criativo aberto. As respostas variarão com base na imaginação e interpretação do aluno sobre o tópico.",
+            fr: "Ceci est un exercice créatif ouvert. Les réponses varieront selon l'imagination et l'interprétation du sujet par l'élève.",
+            it: "Questo è un esercizio creativo aperto. Le risposte varieranno in base all'immaginazione e all'interpretazione dell'argomento.",
+            tl: "Ito ay isang malikhaing pagsasanay. Ang mga sagot ay mag-iiba batay sa imahinasyon at interpretasyon ng mag-aaral."
+        };
+
+        const app = {
+            state: {
+                lang: 'en',
+                mode: 'arrange',
+                difficulty: 1,
+                qCount: 5,
+                color: '#0ea5e9',
+                currentSentences: []
+            },
+
+            init() {
+                // Attach Listeners
+                const inputs = document.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.addEventListener('input', (e) => this.handleInput(e));
+                });
+                
+                this.generateContent();
+            },
+
+            handleInput(e) {
+                const id = e.target.id;
+                const val = e.target.value;
+
+                // Sync UI Text
+                if (id === 'wsTitle') document.getElementById('printTitle').innerText = val;
+                if (id === 'wsSubtitle') document.getElementById('printSubtitle').innerText = val;
+                if (id === 'wsFooter') document.getElementById('printFooter').innerText = val;
+                
+                // Label Editors
+                if (id === 'labelNameInput') document.getElementById('printLabelName').innerText = val;
+                if (id === 'labelClassInput') document.getElementById('printLabelClass').innerText = val;
+                if (id === 'labelDateInput') document.getElementById('printLabelDate').innerText = val;
+
+                // Logic
+                if (id === 'langSelect') { 
+                    this.state.lang = val; 
+                    this.updateUILabels(); 
+                    this.generateContent(); 
+                }
+                if (id === 'modeSelect') { this.state.mode = val; this.renderGrid(); this.renderAnswerKey(); }
+                if (id === 'diffSelect') { this.state.difficulty = parseInt(val); this.generateContent(); }
+                
+                // Color Picker - APPLIES TO ALL ELEMENTS
+                if (id === 'colorPicker') {
+                    this.state.color = val;
+                    this.updateColors();
+                }
+
+                // Question Count with Limit
+                if (id === 'qCount') { 
+                    let num = parseInt(val);
+                    if (num > 15) { num = 15; e.target.value = 15; }
+                    if (num < 1) { num = 1; e.target.value = 1; }
+                    this.state.qCount = num; 
+                    this.generateContent(); 
+                }
+
+                // Answer Key Toggle
+                if (id === 'showAnswers') {
+                    const el = document.getElementById('answerKeyContainer');
+                    el.style.display = e.target.checked ? 'block' : 'none';
+                }
+            },
+
+            updateUILabels() {
+                const s = UI_STRINGS[this.state.lang];
+                if (!s) return;
+
+                // Update Input Fields (So user sees the new defaults)
+                document.getElementById('wsTitle').value = s.title;
+                document.getElementById('wsSubtitle').value = s.subtitle;
+                document.getElementById('wsFooter').value = s.footer;
+                document.getElementById('labelNameInput').value = s.name;
+                document.getElementById('labelClassInput').value = s.class;
+                document.getElementById('labelDateInput').value = s.date;
+
+                // Update Print Preview Labels
+                document.getElementById('printTitle').innerText = s.title;
+                document.getElementById('printSubtitle').innerText = s.subtitle;
+                document.getElementById('printFooter').innerText = s.footer;
+                document.getElementById('printLabelName').innerText = s.name;
+                document.getElementById('printLabelClass').innerText = s.class;
+                document.getElementById('printLabelDate').innerText = s.date;
+            },
+
+            updateColors() {
+                const c = this.state.color;
+                // Update Text Items
+                document.querySelectorAll('.q-text').forEach(t => t.style.color = c);
+                // Update Headers
+                document.getElementById('printTitle').style.color = c;
+                // Update Labels
+                document.querySelectorAll('.ws-info-line span').forEach(s => s.style.color = c);
+                // Update Question Bubbles
+                document.querySelectorAll('.q-number').forEach(q => {
+                    q.style.color = '#fff'; 
+                    q.style.backgroundColor = c;
+                });
+            },
+
+            generateContent() {
+                const allSentences = SENTENCE_DB[this.state.lang];
+                // Filter by difficulty first
+                let pool = allSentences.filter(s => s.level <= this.state.difficulty + 1);
+                
+                // If pool is not enough for requested count, fill with remaining sentences (even if harder)
+                if (pool.length < this.state.qCount) {
+                    const remaining = allSentences.filter(s => !pool.includes(s));
+                    // Add needed amount from remaining
+                    const needed = this.state.qCount - pool.length;
+                    pool = pool.concat(remaining.slice(0, needed));
+                }
+
+                const shuffled = [...pool].sort(() => 0.5 - Math.random());
+                this.state.currentSentences = shuffled.slice(0, this.state.qCount);
+                
+                this.renderGrid();
+                this.renderAnswerKey();
+                this.updateColors(); // Re-apply color to new elements
+            },
+
+            renderAnswerKey() {
+                const list = document.getElementById('answerKeyList');
+                list.innerHTML = '';
+
+                // Logic: If Expander mode, show professional note instead of list
+                if (this.state.mode === 'expander') {
+                    const note = document.createElement('div');
+                    note.className = 'ak-note';
+                    // Get message based on language, fallback to English
+                    note.innerText = PRO_MESSAGES[this.state.lang] || PRO_MESSAGES['en'];
+                    list.appendChild(note);
+                } else {
+                    this.state.currentSentences.forEach((item, idx) => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `<b>${idx+1}.</b> ${item.text}`;
+                        list.appendChild(div);
+                    });
+                }
+            },
+
+            renderGrid() {
+                const grid = document.getElementById('worksheetGrid');
+                grid.innerHTML = '';
+                
+                this.state.currentSentences.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'q-card';
+                    
+                    // Number
+                    const num = document.createElement('div');
+                    num.className = 'q-number';
+                    num.innerText = index + 1;
+                    card.appendChild(num);
+
+                    // Body
+                    const body = document.createElement('div');
+                    body.className = 'q-body';
+
+                    // Text Content
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'q-text';
+                    
+                    if (this.state.mode === 'arrange') {
+                        // Scramble Words
+                        const words = item.text.replace('.','').split(' ');
+                        const scrambled = [...words].sort(() => 0.5 - Math.random());
+                        
+                        const box = document.createElement('div');
+                        box.className = 'scramble-box';
+                        scrambled.forEach(w => {
+                            const b = document.createElement('span');
+                            b.className = 'bubble';
+                            b.innerText = w;
+                            box.appendChild(b);
+                        });
+                        textDiv.appendChild(box);
+
+                    } else if (this.state.mode === 'missing') {
+                        // Blank
+                        const words = item.text.split(' ');
+                        const removeIdx = Math.floor(Math.random() * words.length);
+                        words[removeIdx] = '___________';
+                        textDiv.innerText = words.join(' ');
+
+                    } else if (this.state.mode === 'expander') {
+                        // Expander / Free Write
+                        textDiv.innerHTML = `<span style="font-size:0.8em; font-weight:400; color:#888;">Topic:</span> ${item.text} <span style="font-size:0.7em; color:#ccc;">(Expand this)</span>`;
+                    
+                    } else {
+                        // Copy
+                        textDiv.innerText = item.text;
+                    }
+
+                    body.appendChild(textDiv);
+
+                    // Writing Lines
+                    const line = document.createElement('div');
+                    line.className = 'writing-line';
+                    body.appendChild(line);
+
+                    // Extra lines for Expander
+                    if (this.state.mode === 'expander') {
+                        const line2 = document.createElement('div');
+                        line2.className = 'writing-line';
+                        line2.style.marginTop = '10px';
+                        body.appendChild(line2);
+                        
+                        const line3 = document.createElement('div');
+                        line3.className = 'writing-line';
+                        line3.style.marginTop = '10px';
+                        body.appendChild(line3);
+                    }
+
+                    card.appendChild(body);
+                    grid.appendChild(card);
+                });
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.getElementById("worksheetPaper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "sentence-builder-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>

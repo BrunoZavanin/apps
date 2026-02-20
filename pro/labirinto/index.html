@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Maze Generator - Final Safe Version</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default Theme */
+            --primary: #2980b9;
+            --secondary: #3498db;
+            --accent: #f1c40f;
+            --bg-body: #eef2f3;
+            --path-color: #d4efdf;
+        }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        
+        body {
+            margin: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-body);
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 340px;
+            background: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            z-index: 20;
+            border-right: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+
+        h2 { margin: 0; font-family: 'Fredoka', sans-serif; color: var(--primary); font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 6px; }
+        label { font-weight: 800; font-size: 0.75rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select, input[type="text"], button {
+            width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 6px;
+            font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.2s; cursor: pointer;
+        }
+        select:focus, input:focus { border-color: var(--secondary); background: #fff; }
+        select:hover { background: #fafafa; }
+
+        /* Text Editor Section */
+        .text-editor-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .text-editor-box h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: #2c3e50; font-weight: 800; display: flex; align-items: center; gap: 5px; }
+
+        .btn-shuffle { background: var(--secondary); color: white; border: none; font-weight: 800; margin-top: 5px; }
+        .btn-shuffle:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        
+        .btn-print { background: #2c3e50; color: white; border: none; font-weight: 800; margin-top: auto; padding: 12px; font-size: 1rem; }
+        .btn-print:hover { background: #1a252f; }
+        
+        .btn-toggle { background: white; border: 2px solid #ccc; color: #555; font-weight: 700; font-size: 0.85rem; }
+        .btn-toggle.active { background: var(--accent); border-color: var(--accent); color: #000; }
+
+        /* Color Scheme Buttons */
+        .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .theme-btn {
+            width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid white; 
+            box-shadow: 0 0 0 2px #ddd; cursor: pointer; transition: transform 0.2s;
+        }
+        .theme-btn:hover { transform: scale(1.1); }
+        .theme-btn.active { box-shadow: 0 0 0 3px var(--primary); transform: scale(1.1); }
+
+        /* --- PREVIEW AREA --- */
+        .preview-area {
+            flex: 1;
+            background: #cbd5e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Fix top cut */
+            overflow: auto;
+            padding: 50px 20px; /* Safe padding */
+        }
+
+        /* --- A4 PAPER --- */
+        .paper {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 15mm;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transform-origin: top center;
+            flex-shrink: 0;
+        }
+
+        /* --- DECORATIONS (Neutral) --- */
+        .deco-icon { position: absolute; font-size: 3.5rem; opacity: 1; z-index: 1; pointer-events: none; }
+        .deco-tl { top: 20px; left: 20px; transform: rotate(-15deg); }
+        .deco-tr { top: 20px; right: 20px; transform: rotate(15deg); }
+        .deco-bl { bottom: 20px; left: 20px; transform: rotate(15deg); }
+        .deco-br { bottom: 20px; right: 20px; transform: rotate(-15deg); }
+
+        /* --- HEADER --- */
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; border-bottom: 3px solid var(--primary); padding-bottom: 15px; }
+        
+        .title-block h1 {
+            font-family: 'Fredoka', sans-serif; font-size: 3rem; margin: 0; 
+            color: var(--primary); line-height: 1; text-transform: uppercase;
+        }
+        .title-block p { margin: 5px 0 0; color: #7f8c8d; font-weight: 700; font-size: 1rem; }
+
+        .info-block { text-align: right; font-size: 1rem; color: #555; }
+        .info-row { margin-bottom: 8px; display: flex; justify-content: flex-end; align-items: baseline; gap: 5px; }
+        .info-label { font-weight: bold; color: var(--secondary); }
+        .info-line { width: 140px; border-bottom: 2px dotted #bdc3c7; text-align: center; color: #333; min-height: 20px; }
+
+        /* --- INSTRUCTION --- */
+        .instruction-box {
+            background: var(--path-color);
+            border: 2px dashed var(--secondary);
+            border-radius: 12px;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 800;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        /* --- GRID --- */
+        .maze-container {
+            flex: 1;
+            display: grid;
+            gap: 4px;
+            padding: 5px;
+            position: relative;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #2c3e50;
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            user-select: none;
+        }
+        
+        .style-boxes .cell { border: 2px solid #bdc3c7; border-radius: 6px; }
+        .style-circles .cell { border: 2px solid #bdc3c7; border-radius: 50%; }
+        
+        .cell.start { background-color: #fef9e7 !important; border-color: var(--accent) !important; }
+        .cell.end { background-color: #eafaf1 !important; border-color: var(--primary) !important; }
+        
+        .badge {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #fff; font-size: 0.65rem; padding: 2px 8px;
+            border-radius: 4px; font-weight: 900; z-index: 5; text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap;
+        }
+        .cell.end .badge { background: var(--primary); }
+
+        .cell.path.show { 
+            background-color: var(--path-color) !important; 
+            border-color: var(--secondary) !important;
+            color: #000;
+        }
+
+        /* --- FOOTER --- */
+        .footer { 
+            text-align: center; font-size: 0.8rem; color: #95a5a6; margin-top: 20px; 
+            border-top: 1px solid #eee; padding-top: 10px;
+        }
+
+        /* --- PRINT --- */
+        @media print {
+            body { background: white; display: block; overflow: visible; height: auto; }
+            .sidebar { display: none; }
+            .preview-area { padding: 0; background: white; display: block; overflow: visible; }
+            .paper { 
+                margin: 0; box-shadow: none; width: 100%; height: auto; 
+                transform: none !important; page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🔢 Math Maze Ultimate</h2>
+        
+        <div class="control-group">
+            <label>Language (12 Options)</label>
+            <select id="langSelect" onchange="changeLanguage()">
+                <option value="en">🇺🇸 English</option>
+                <option value="id">🇮🇩 Indonesia</option>
+                <option value="es">🇪🇸 Spanish</option>
+                <option value="fr">🇫🇷 French</option>
+                <option value="de">🇩🇪 German</option>
+                <option value="it">🇮🇹 Italian</option>
+                <option value="pt">🇵🇹 Portuguese</option>
+                <option value="nl">🇳🇱 Dutch</option>
+                <option value="tr">🇹🇷 Turkish</option>
+                <option value="pl">🇵🇱 Polish</option>
+                <option value="ru">🇷🇺 Russian</option>
+                <option value="jp">🇯🇵 Japanese</option>
+                <option value="kr">🇰🇷 Korean</option>
+            </select>
+        </div>
+
+        <div class="text-editor-box">
+            <h3>📝 EDIT TEXT LABELS</h3>
+            <div class="control-group">
+                <label>Worksheet Title</label>
+                <input type="text" id="inpTitle" oninput="syncText('outTitle', this.value)">
+            </div>
+            <div class="control-group">
+                <label>Subtitle</label>
+                <input type="text" id="inpSub" oninput="syncText('outSub', this.value)">
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
+                <div class="control-group">
+                    <label>Name</label>
+                    <input type="text" id="inpName" oninput="syncText('lblN', this.value)">
+                </div>
+                <div class="control-group">
+                    <label>Class</label>
+                    <input type="text" id="inpClass" oninput="syncText('lblC', this.value)">
+                </div>
+                <div class="control-group">
+                    <label>Date</label>
+                    <input type="text" id="inpDate" oninput="syncText('lblD', this.value)">
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Footer Text</label>
+                <input type="text" id="inpFooter" oninput="syncText('outFooter', this.value)">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Color Scheme</label>
+            <div class="theme-grid" id="themeContainer">
+                </div>
+        </div>
+
+        <div class="control-group">
+            <label>Decoration (Neutral)</label>
+            <select id="decoSelect" onchange="updateDeco()">
+                <option value="animals">🐼 Cute Animals (Neutral)</option>
+                <option value="nature">🌻 Nature</option>
+                <option value="fruits">🍎 Fruits</option>
+                <option value="vehicles">🚗 Vehicles</option>
+                <option value="none">🚫 None (Clean)</option>
+            </select>
+        </div>
+
+        <hr style="border:0; border-top:1px solid #eee; width:100%;">
+
+        <div class="control-group">
+            <label>Math Rule</label>
+            <select id="ruleSelect" onchange="updateRuleAndGenerate()">
+                <option value="even">Even Numbers (2, 4, 6...)</option>
+                <option value="odd">Odd Numbers (1, 3, 5...)</option>
+                <option value="mult3">Multiples of 3</option>
+                <option value="mult4">Multiples of 4</option>
+                <option value="mult5">Multiples of 5</option>
+                <option value="mult10">Multiples of 10</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Grid Size</label>
+            <select id="sizeSelect" onchange="generateMaze()">
+                <option value="8">8 x 8 (Easy)</option>
+                <option value="10" selected>10 x 10 (Medium)</option>
+                <option value="12">12 x 12 (Hard)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Box Style</label>
+            <select id="styleSelect" onchange="updateGridStyle()">
+                <option value="style-boxes">Square Boxes</option>
+                <option value="style-circles">Circles / Bubbles</option>
+            </select>
+        </div>
+
+        <button class="btn-shuffle" onclick="generateMaze()">🎲 SHUFFLE NUMBERS</button>
+        <button class="btn-toggle" id="btnSol" onclick="toggleSolution()">👁️ SHOW ANSWER KEY</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT TO PDF</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="preview-area">
+        <div class="paper" id="paper">
+            
+            <div class="deco-icon deco-tl" id="d1">🐼</div>
+            <div class="deco-icon deco-tr" id="d2">🐨</div>
+            <div class="deco-icon deco-bl" id="d3">🐸</div>
+            <div class="deco-icon deco-br" id="d4">🦊</div>
+
+            <div class="header">
+                <div class="title-block">
+                    <h1 id="outTitle">MATH MAZE</h1>
+                    <p id="outSub">Find the way to the finish!</p>
+                </div>
+                <div class="info-block">
+                    <div class="info-row"><span class="info-label" id="lblN">Name:</span> <span class="info-line"></span></div>
+                    <div class="info-row"><span class="info-label" id="lblC">Class:</span> <span class="info-line"></span></div>
+                    <div class="info-row"><span class="info-label" id="lblD">Date:</span> <span class="info-line"></span></div>
+                </div>
+            </div>
+
+            <div class="instruction-box" id="outInstr" contenteditable="true">
+                Color all the EVEN NUMBERS to reach the finish line!
+            </div>
+
+            <div class="maze-container style-boxes" id="mazeGrid">
+                </div>
+
+            <div class="footer" id="outFooter">
+                Created with Math Maze Generator
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- DATASETS ---
+        const colorSchemes = [
+            { p:'#2980b9', s:'#3498db', a:'#f1c40f', bg:'#e8f6fd', path:'#d4efdf' }, // Ocean
+            { p:'#27ae60', s:'#2ecc71', a:'#e67e22', bg:'#e9f7ef', path:'#f9e79f' }, // Jungle
+            { p:'#8e44ad', s:'#9b59b6', a:'#f39c12', bg:'#f5eef8', path:'#d2b4de' }, // Berry
+            { p:'#c0392b', s:'#e74c3c', a:'#f1c40f', bg:'#fdedec', path:'#f5b7b1' }, // Fire
+            { p:'#2c3e50', s:'#34495e', a:'#e74c3c', bg:'#ebedef', path:'#aed6f1' }, // Dark
+            { p:'#e91e63', s:'#f06292', a:'#ffeb3b', bg:'#fce4ec', path:'#f8bbd0' }, // Pink
+            { p:'#009688', s:'#4db6ac', a:'#ff9800', bg:'#e0f2f1', path:'#b2dfdb' }, // Teal
+            { p:'#444444', s:'#666666', a:'#000000', bg:'#ffffff', path:'#dddddd' }  // Mono
+        ];
+
+        // 12 Languages
+        const translations = {
+            en: { t:"MATH MAZE", s:"Find the way to the finish!", n:"Name:", c:"Class:", d:"Date:", f:"Created with Math Maze Generator", r:{even:"Color the EVEN NUMBERS!", odd:"Color the ODD NUMBERS!", mult:"Follow MULTIPLES OF {N}!"} },
+            id: { t:"LABIRIN ANGKA", s:"Temukan jalan menuju finish!", n:"Nama:", c:"Kelas:", d:"Tanggal:", f:"Dibuat dengan Math Maze Generator", r:{even:"Warnai Angka GENAP!", odd:"Warnai Angka GANJIL!", mult:"Ikuti KELIPATAN {N}!"} },
+            es: { t:"LABERINTO", s:"¡Encuentra el camino!", n:"Nombre:", c:"Clase:", d:"Fecha:", f:"Creado con Math Maze Generator", r:{even:"¡Colorea los números PARES!", odd:"¡Colorea los números IMPARES!", mult:"¡Sigue los MÚLTIPLOS DE {N}!"} },
+            fr: { t:"LABYRINTHE", s:"Trouvez le chemin!", n:"Nom:", c:"Classe:", d:"Date:", f:"Créé avec Math Maze Generator", r:{even:"Colorie les nombres PAIRS!", odd:"Colorie les nombres IMPAIRS!", mult:"Suis les MULTIPLES DE {N}!"} },
+            de: { t:"MATHE LABYRINTH", s:"Finde den Weg!", n:"Name:", c:"Klasse:", d:"Datum:", f:"Erstellt mit Math Maze Generator", r:{even:"Male GERADE Zahlen aus!", odd:"Male UNGERADE Zahlen aus!", mult:"Folge VIELFACHEN VON {N}!"} },
+            it: { t:"LABIRINTO", s:"Trova la strada!", n:"Nome:", c:"Classe:", d:"Data:", f:"Creato con Math Maze Generator", r:{even:"Colora i numeri PARI!", odd:"Colora i numeri DISPARI!", mult:"Segui i MULTIPLI DI {N}!"} },
+            pt: { t:"LABIRINTO", s:"Encontre o caminho!", n:"Nome:", c:"Turma:", d:"Data:", f:"Criado com Math Maze Generator", r:{even:"Pinte os números PARES!", odd:"Pinte os números ÍMPARES!", mult:"Siga os MÚLTIPLOS DE {N}!"} },
+            nl: { t:"DOOLHOF", s:"Vind de weg!", n:"Naam:", c:"Klas:", d:"Datum:", f:"Gemaakt met Math Maze Generator", r:{even:"Kleur de EVEN getallen!", odd:"Kleur de ONEVEN getallen!", mult:"Volg VEELVOUDEN VAN {N}!"} },
+            tr: { t:"SAYI LABİRENTİ", s:"Yolu bul!", n:"İsim:", c:"Sınıf:", d:"Tarih:", f:"Math Maze Generator ile oluşturuldu", r:{even:"ÇİFT sayıları boya!", odd:"TEK sayıları boya!", mult:"{N}'in KATLARINI takip et!"} },
+            pl: { t:"LABIRYNT", s:"Znajdź drogę!", n:"Imię:", c:"Klasa:", d:"Data:", f:"Utworzono w Math Maze Generator", r:{even:"Pokoloruj liczby PARZYSTE!", odd:"Pokoloruj liczby NIEPARZYSTE!", mult:"Śledź WIELOKROTNOŚCI {N}!"} },
+            ru: { t:"ЛАБИРИНТ", s:"Найди путь!", n:"Имя:", c:"Класс:", d:"Дата:", f:"Создано в Math Maze Generator", r:{even:"Раскрась ЧЕТНЫЕ числа!", odd:"Раскрась НЕЧЕТНЫЕ числа!", mult:"Следуй за КРАТНЫМИ {N}!"} },
+            jp: { t:"すうじのめいろ", s:"ゴールをめざそう！", n:"なまえ:", c:"クラス:", d:"ひづけ:", f:"Math Maze Generatorでさくせい", r:{even:"ぐうすうをぬろう！", odd:"きすうをぬろう！", mult:"{N}のばいすうをすすもう！"} },
+            kr: { t:"수학 미로", s:"길을 찾아보세요!", n:"이름:", c:"반:", d:"날짜:", f:"Math Maze Generator로 제작", r:{even:"짝수를 색칠하세요!", odd:"홀수를 색칠하세요!", mult:"{N}의 배수를 따라가세요!"} }
+        };
+
+        // Neutral Decorations (No monsters, no dogs, no pigs, no humans)
+        const decorations = {
+            animals: ['🐼','🐨','🐸','🦊'], // Panda, Koala, Frog, Fox
+            nature: ['🌻','🌿','🍄','🌵'], // Sunflower, Leaf, Mushroom, Cactus
+            fruits: ['🍎','🍌','🍇','🍉'], // Fruits
+            vehicles: ['🚗','🚀','🚂','⛵'], // Transport
+            none: ['','','','']
+        };
+
+        let showSolution = false;
+
+        // --- INIT ---
+        window.onload = () => {
+            renderSchemes();
+            applyScheme(0);
+            updateDeco();
+            changeLanguage(); // Sets initial text
+            generateMaze();
+            adjustScale();
+            window.addEventListener('resize', adjustScale);
+        };
+
+        // --- UI SYNC ---
+        function syncText(targetId, val) {
+            document.getElementById(targetId).innerText = val;
+        }
+
+        function updateInputsFromLang(data) {
+            document.getElementById('inpTitle').value = data.t;
+            document.getElementById('inpSub').value = data.s;
+            document.getElementById('inpName').value = data.n;
+            document.getElementById('inpClass').value = data.c;
+            document.getElementById('inpDate').value = data.d;
+            document.getElementById('inpFooter').value = data.f;
+            
+            // Apply to view
+            syncText('outTitle', data.t);
+            syncText('outSub', data.s);
+            syncText('lblN', data.n);
+            syncText('lblC', data.c);
+            syncText('lblD', data.d);
+            syncText('outFooter', data.f);
+        }
+
+        function changeLanguage() {
+            const lang = document.getElementById('langSelect').value;
+            const data = translations[lang];
+            updateInputsFromLang(data);
+            updateInstruction();
+        }
+
+        function updateRuleAndGenerate() {
+            updateInstruction();
+            generateMaze();
+        }
+
+        function updateInstruction() {
+            const lang = document.getElementById('langSelect').value;
+            const rule = document.getElementById('ruleSelect').value;
+            const data = translations[lang].r;
+            
+            let text = "";
+            if(rule === 'even') text = data.even;
+            else if(rule === 'odd') text = data.odd;
+            else {
+                const n = rule.replace('mult', '');
+                text = data.mult.replace('{N}', n);
+            }
+            document.getElementById('outInstr').innerText = text;
+        }
+
+        function adjustScale() {
+            const paper = document.getElementById('paper');
+            const preview = document.querySelector('.preview-area');
+            const availWidth = preview.offsetWidth - 40; 
+            const scale = Math.min(availWidth / paper.offsetWidth, 1);
+            paper.style.transform = `scale(${scale})`;
+        }
+
+        function renderSchemes() {
+            const container = document.getElementById('themeContainer');
+            colorSchemes.forEach((c, i) => {
+                const btn = document.createElement('div');
+                btn.className = 'theme-btn';
+                btn.style.background = `linear-gradient(135deg, ${c.p} 50%, ${c.s} 50%)`;
+                btn.onclick = () => applyScheme(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function applyScheme(index) {
+            const t = colorSchemes[index];
+            const root = document.documentElement.style;
+            root.setProperty('--primary', t.p);
+            root.setProperty('--secondary', t.s);
+            root.setProperty('--accent', t.a);
+            root.setProperty('--bg-body', t.bg);
+            root.setProperty('--path-color', t.path);
+            
+            document.querySelectorAll('.theme-btn').forEach((b, i) => {
+                b.classList.toggle('active', i === index);
+            });
+        }
+
+        function updateDeco() {
+            const set = decorations[document.getElementById('decoSelect').value];
+            for(let i=0; i<4; i++) document.getElementById(`d${i+1}`).innerText = set[i];
+        }
+
+        function updateGridStyle() {
+            const style = document.getElementById('styleSelect').value;
+            const grid = document.getElementById('mazeGrid');
+            grid.className = `maze-container ${style}`;
+        }
+
+        function toggleSolution() {
+            showSolution = !showSolution;
+            document.getElementById('btnSol').classList.toggle('active', showSolution);
+            const paths = document.querySelectorAll('.cell.path');
+            paths.forEach(p => p.classList.toggle('show', showSolution));
+        }
+
+        // --- MATH & MAZE LOGIC (UNCHANGED PERFECTION) ---
+        function generateMaze() {
+            const size = parseInt(document.getElementById('sizeSelect').value);
+            const rule = document.getElementById('ruleSelect').value;
+            const grid = document.getElementById('mazeGrid');
+            
+            grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            grid.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+            grid.innerHTML = '';
+
+            let pathSet = new Set(['0,0']);
+            let curr = {x:0,y:0};
+            let attempts = 0;
+
+            // Snake Algorithm
+            while((curr.x !== size-1 || curr.y !== size-1) && attempts < 1000) {
+                let moves = [];
+                const dirs = [{dx:1,dy:0},{dx:0,dy:1},{dx:-1,dy:0},{dx:0,dy:-1}];
+                
+                dirs.forEach(d => {
+                    const nx = curr.x + d.dx, ny = curr.y + d.dy;
+                    if(nx>=0 && nx<size && ny>=0 && ny<size && !pathSet.has(`${nx},${ny}`)) {
+                        let nCheck = 0;
+                        dirs.forEach(nd => {
+                            if(pathSet.has(`${nx+nd.dx},${ny+nd.dy}`)) nCheck++;
+                        });
+                        if(nCheck === 1) moves.push({x:nx, y:ny});
+                    }
+                });
+
+                if(moves.length > 0) {
+                    moves.sort((a,b) => {
+                        const da = (size-1-a.x)+(size-1-a.y);
+                        const db = (size-1-b.x)+(size-1-b.y);
+                        return (da - db) + (Math.random()*2 - 1);
+                    });
+                    curr = moves[0];
+                    pathSet.add(`${curr.x},${curr.y}`);
+                } else {
+                    pathSet = new Set(['0,0']);
+                    curr = {x:0,y:0};
+                    attempts++;
+                }
+            }
+
+            // Fill Grid
+            for(let y=0; y<size; y++) {
+                for(let x=0; x<size; x++) {
+                    const isPath = pathSet.has(`${x},${y}`);
+                    const num = generateNum(isPath, rule);
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if(isPath) cell.classList.add('path');
+                    if(showSolution && isPath) cell.classList.add('show');
+                    
+                    if(x===0 && y===0) {
+                        cell.classList.add('start');
+                        cell.innerHTML = `<div class="badge">START</div>${num}`;
+                    } else if(x===size-1 && y===size-1) {
+                        cell.classList.add('end');
+                        cell.innerHTML = `<div class="badge">FINISH</div>${num}`;
+                    } else {
+                        cell.innerText = num;
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function generateNum(isCorrect, rule) {
+            const check = {
+                even: n => n%2===0, odd: n => n%2!==0,
+                mult3: n => n%3===0, mult4: n => n%4===0,
+                mult5: n => n%5===0, mult10: n => n%10===0
+            }[rule];
+
+            let n, safety=0;
+            do { n = Math.floor(Math.random()*98)+2; safety++; }
+            while(check(n) !== isCorrect && safety<500);
+            
+            if(safety>=500) return isCorrect ? (rule==='mult5'?5:rule==='even'?2:3) : (rule==='mult5'?3:rule==='even'?1:2);
+            return n;
+        }
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.getElementById("paper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "math-maze-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>

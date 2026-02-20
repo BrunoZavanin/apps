@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Measurement Worksheet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #022C22;
+            --sidebar-bg: #064E3B;
+            --input-bg: #065F46;
+            --primary: #2DD4BF;
+            --primary-glow: #2DD4BF;
+            --accent: #BEF264;
+            --card-bg: #064E3B;
+            --text-glow: #CCFBF1;
+            --unit-color: #BEF264;
+            --3d-shadow: 0 8px 0 rgba(0,0,0,0.3);
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Themes */
+        [data-theme="neon-space"] { --bg-dark: #0F172A; --sidebar-bg: #1E293B; --primary: #38BDF8; --primary-glow: #38BDF8; --accent: #F472B6; }
+        [data-theme="cyber-dino"] { --bg-dark: #1C1917; --sidebar-bg: #292524; --primary: #A3E635; --primary-glow: #A3E635; --accent: #FB923C; }
+        [data-theme="matrix-mint"] { --bg-dark: #020617; --sidebar-bg: #0F172A; --primary: #10B981; --primary-glow: #10B981; --accent: #34D399; }
+        [data-theme="emerald-lab"] { --bg-dark: #064E3B; --sidebar-bg: #065F46; --primary: #34D399; --primary-glow: #34D399; --accent: #FDE047; }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; }
+        
+        body {
+            margin: 0;
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bg-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: #F1F5F9;
+        }
+
+        /* Animated Futuristic Background */
+        .bg-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .bg-grid {
+            position: absolute;
+            width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(rgba(45, 212, 191, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(45, 212, 191, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(60deg);
+            animation: grid-move 20s infinite linear;
+            top: -50%; left: -50%;
+        }
+
+        @keyframes grid-move {
+            from { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            to { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+
+        /* Sidebar UI */
+        .sidebar {
+            width: 420px;
+            background: var(--sidebar-bg);
+            padding: 25px;
+            box-shadow: -20px 0 50px rgba(0,0,0,0.5);
+            z-index: 100;
+            overflow-y: auto;
+            border-left: 2px solid rgba(255,255,255,0.05);
+        }
+
+        /* 3D Shiny White Logo */
+        .sidebar h1 {
+            font-family: 'Fredoka One', cursive;
+            color: #FFFFFF;
+            font-size: 26px;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 
+                0 1px 0 #ccc, 0 2px 0 #bbb, 0 3px 0 #aaa,
+                0 6px 1px rgba(0,0,0,0.2), 0 0 5px rgba(255,255,255,0.3);
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin: 20px 0 10px 0;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+        }
+
+        .control-group { margin-bottom: 15px; }
+        .control-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #94A3B8;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            background: var(--input-bg);
+            color: white;
+            font-family: inherit;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 18px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+            background: var(--primary);
+            box-shadow: 0 6px 0 var(--primary-dark);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-dark); }
+        .btn-print { background: var(--accent); color: #064E3B; box-shadow: 0 6px 0 #84CC16; }
+
+        /* Worksheet Area */
+        .preview-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .worksheet-a4 {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 15mm 20mm;
+            box-shadow: 0 0 60px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            color: #1E293B;
+            position: relative;
+        }
+
+        /* 3D Embossed Title on Worksheet */
+        .ws-header { text-align: center; margin-bottom: 20px; flex-shrink: 0; }
+        .ws-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 40px;
+            color: var(--sidebar-bg);
+            margin: 0;
+            filter: drop-shadow(4px 4px 0 rgba(0,0,0,0.1));
+            text-transform: uppercase;
+        }
+
+        .ws-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-weight: 700;
+            color: #64748B;
+            border-bottom: 4px dotted #E2E8F0;
+            padding-bottom: 12px;
+        }
+
+        .questions-container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            flex-grow: 1; 
+            margin-top: 20px;
+        }
+
+        .q-card {
+            background: var(--bg-dark);
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 4px solid var(--sidebar-bg);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.05);
+            page-break-inside: avoid;
+            color: #F1F5F9;
+        }
+
+        .q-text {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .q-num {
+            background: var(--primary);
+            color: var(--bg-dark);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Fredoka One', cursive;
+            flex-shrink: 0;
+            box-shadow: 0 4px 0 var(--primary-glow);
+        }
+
+        /* Measurement Object Styling */
+        .measurement-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: flex-start;
+            padding: 10px;
+        }
+
+        .object-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .object-bar {
+            height: 35px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-glow));
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.3), inset 0 2px 4px rgba(255,255,255,0.5);
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: width 0.5s ease;
+        }
+
+        .object-label {
+            width: 30px;
+            font-weight: 800;
+            color: var(--accent);
+            font-size: 20px;
+        }
+
+        /* Units Ruler */
+        .unit-ruler {
+            display: flex;
+            gap: 2px;
+            margin-top: 8px;
+        }
+
+        .unit-block {
+            width: 25px;
+            height: 25px;
+            background: var(--accent);
+            border-radius: 4px;
+            opacity: 0.8;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.5);
+            /* Added slight border for screen visibility */
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Answer Section Wrapper */
+        .answer-section {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        /* Student Answer Box (White Shape) */
+        .answer-shape {
+            width: 70px;
+            height: 45px;
+            background: white;
+            border: 3px solid var(--sidebar-bg);
+            border-radius: 12px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            
+            /* Center the text inside */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            font-family: 'Fredoka One', cursive;
+            color: #0F172A; /* Dark text for visibility on white */
+        }
+
+        /* The answer text itself */
+        .answer-content {
+            visibility: hidden; /* Hidden by default */
+        }
+
+        /* Show answer when parent has class .show-sol */
+        .show-sol .answer-content {
+            visibility: visible;
+        }
+
+        .ws-footer {
+            text-align: center;
+            padding: 20px 0;
+            font-weight: 800;
+            color: #94A3B8;
+            font-size: 12px;
+            letter-spacing: 2px;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { background: white; height: auto; overflow: visible; }
+            .sidebar, .bg-layer { display: none !important; }
+            .preview-area { padding: 0; overflow: visible; display: block; }
+            .worksheet-a4 { 
+                box-shadow: none !important; 
+                width: 210mm; height: auto; min-height: 297mm;
+                padding: 15mm; margin: 0 auto;
+                background: #f8fafc;
+            }
+            .q-card { 
+                background: #F1F5F9; 
+                color: #0F172A; 
+                border-color: #CBD5E1;
+                box-shadow: none;
+            }
+            .object-bar { border: 2px solid #065F46; }
+            
+            /* FIXED: Unit Blocks Visibility in Print */
+            .unit-block {
+                opacity: 1 !important;
+                border: 1px solid #64748B !important; /* Solid dark grey border */
+                box-shadow: none;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Student Answer Box Print Style */
+            .answer-shape {
+                border: 2px solid #0F172A;
+                background: #FFFFFF !important;
+                box-shadow: none;
+                /* If you want to print the answer key if it was toggled ON on screen, this works. */
+                /* If you always want to hide answers on print, uncomment below: */
+                /* color: transparent; */ 
+            }
+        }
+
+        .rtl { direction: rtl; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-layer">
+        <div class="bg-grid"></div>
+        <svg style="position:fixed; opacity:0.1" width="100%" height="100%">
+            <circle cx="20%" cy="30%" r="100" fill="var(--primary)"/>
+            <rect x="70%" y="60%" width="150" height="150" rx="30" fill="var(--accent)" transform="rotate(25)"/>
+        </svg>
+    </div>
+
+    <main class="preview-area">
+        <div class="worksheet-a4" id="ws">
+            <div class="ws-header">
+                <h2 class="ws-title" id="outTitle">MEASUREMENT LAB</h2>
+                <div class="ws-meta">
+                    <span id="outName">NAME: _________________</span>
+                    <span id="outClass">CLASS: _________________</span>
+                </div>
+            </div>
+
+            <div class="questions-container" id="qList"></div>
+
+            <div class="ws-footer" id="outFooter">
+                © 2026 MEASUREMENT ARCHITECT • PREMIUM PLR CONTENT
+            </div>
+        </div>
+    </main>
+
+    <aside class="sidebar">
+        <h1>MEASURE MASTER</h1>
+
+        <div class="section-title">Lab Customization</div>
+        <div class="control-group">
+            <label>Language</label>
+            <select id="langSelect" onchange="applyLang()">
+                <option value="en">English </option>
+                <option value="id" selected>Bahasa Indonesia</option>
+                <option value="es">Español </option>
+                <option value="fr">Français </option>
+                <option value="ar">العربية </option>
+                <option value="de">Deutsch </option>
+                <option value="pt">Português </option>
+                <option value="ru">Русский </option>
+                <option value="zh">中文 </option>
+                <option value="ja">日本語 </option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Theme Style</label>
+            <select id="themeSelect" onchange="applyTheme()">
+                <option value="default">Friendly Sci-Fi Lab</option>
+                <option value="neon-space">Neon Space Voyager</option>
+                <option value="cyber-dino">Cyber Dino Forest</option>
+                <option value="matrix-mint">Matrix Mint Grid</option>
+                <option value="emerald-lab">Deep Emerald Tech</option>
+            </select>
+        </div>
+
+        <div class="section-title">Question Parameters</div>
+        <div class="control-group">
+            <label>Measurement Mode</label>
+            <select id="modeSelect" onchange="generate()">
+                <option value="compare">Longer vs Shorter</option>
+                <option value="extremes">Longest vs Shortest</option>
+                <option value="units">Measure with Units</option>
+                <option value="mixed">Mixed Lab Mode</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Question Count: <span id="qCountVal">5</span></label>
+            <input type="range" id="qCount" min="1" max="10" value="5" oninput="document.getElementById('qCountVal').innerText=this.value; generate();">
+        </div>
+
+        <div class="control-group">
+            <label>Difficulty</label>
+            <select id="diffSelect" onchange="generate()">
+                <option value="easy">Easy (Big differences)</option>
+                <option value="medium" selected>Junior (Normal)</option>
+                <option value="hard">Expert (Close lengths)</option>
+            </select>
+        </div>
+
+        <div class="section-title">Labels & Branding</div>
+        <div class="control-group"><label>App Title</label><input type="text" id="inTitle" value="MEASUREMENT LAB"></div>
+        <div class="flex-row" style="display:flex; gap:10px;">
+            <div class="control-group"><label>Name</label><input type="text" id="inName" value="NAME:"></div>
+            <div class="control-group"><label>Class</label><input type="text" id="inClass" value="CLASS:"></div>
+        </div>
+        <div class="control-group"><label>Footer</label><input type="text" id="inFooter" value="© 2026 MEASUREMENT ARCHITECT • PREMIUM PLR"></div>
+
+        <div class="section-title">Operations</div>
+        <button class="btn btn-gen" onclick="generate()">✨ CALIBRATE NEW LAB</button>
+        <button class="btn" style="background:#475569; box-shadow:0 6px 0 #1e293b;" onclick="document.getElementById('ws').classList.toggle('show-sol')">💡 TOGGLE ANSWER KEY</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ PRINT</button>
+		<button class="btn btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </aside>
+
+    <script>
+        const i18n = {
+            en: { t: "MEASUREMENT LAB", n: "NAME:", c: "CLASS:", f: "© 2026 MEASUREMENT ARCHITECT • PREMIUM PLR", q_longer: "Which is the LONGEST?", q_shorter: "Which is the SHORTEST?", q_unit: "How many units long is this?" },
+            es: { t: "LAB DE MEDICIÓN", n: "NOMBRE:", c: "CLASE:", f: "© 2026 ARCHITECTO DE MEDIDAS", q_longer: "¿Cuál es el más LARGO?", q_shorter: "¿Cuál es el más CORTO?", q_unit: "¿Cuántas unidades mide?" },
+            id: { t: "LABORATORIUM PENGUKURAN", n: "NAMA:", c: "KELAS:", f: "© 2026 ARSITEK PENGUKURAN • PLR PREMIUM", q_longer: "Mana yang paling PANJANG?", q_shorter: "Mana yang paling PENDEK?", q_unit: "Berapa panjang kotak ini?" },
+            fr: { t: "LABO DE MESURE", n: "NOM:", c: "CLASSE:", f: "© 2026 ARCHITECTE DE MESURE", q_longer: "Lequel est le plus LONG?", q_shorter: "Lequel est le plus COURT?", q_unit: "Quelle est la longueur?" },
+            ar: { t: "مختبر القياس", n: "الاسم:", c: "الفصل:", f: "© 2026 مهندس القياس", q_longer: "أيهما الأطول؟", q_shorter: "أيهما الأقصر؟", q_unit: "كم عدد الوحدات؟" },
+            de: { t: "MESS-LABOR", n: "NAME:", c: "KLASSE:", f: "© 2026 MESS-ARCHITEKT", q_longer: "Welches ist das LÄNGSTE?", q_shorter: "Welches ist das KÜRZESTE?", q_unit: "Wie viele Einheiten lang?" },
+            pt: { t: "LAB DE MEDIÇÃO", n: "NOME:", c: "CLASSE:", f: "© 2026 ARQUITETO DE MEDIDAS", q_longer: "Qual é o mais LONGO?", q_shorter: "Qual é o mais CURTO?", q_unit: "Quantas unidades mede?" },
+            ru: { t: "ЛАБОРАТОРИЯ ИЗМЕРЕНИЙ", n: "ИМЯ:", c: "КЛАСС:", f: "© 2026 АРХИТЕКТОР ИЗМЕРЕНИЙ", q_longer: "Что ДЛИННЕЕ?", q_shorter: "Что КОРОЧЕ?", q_unit: "Сколько единиц в длину?" },
+            zh: { t: "测量实验室", n: "姓名:", c: "班级:", f: "© 2026 测量大师", q_longer: "哪一个最长？", q_shorter: "哪一个最短？", q_unit: "这个有几个单位长？" },
+            ja: { t: "測定ラボ", n: "名前:", c: "クラス:", f: "© 2026 測定の達人", q_longer: "一番長いのは？", q_shorter: "一番短いのは？", q_unit: "長さはいくつ？" }
+        };
+
+        function applyTheme() {
+            document.body.setAttribute('data-theme', document.getElementById('themeSelect').value);
+        }
+
+        function applyLang() {
+            const l = document.getElementById('langSelect').value;
+            const d = i18n[l] || i18n.en;
+            document.getElementById('inTitle').value = d.t;
+            document.getElementById('inName').value = d.n;
+            document.getElementById('inClass').value = d.c;
+            document.getElementById('inFooter').value = d.f;
+            syncLabels();
+            generate();
+        }
+
+        function syncLabels() {
+            document.getElementById('outTitle').innerText = document.getElementById('inTitle').value;
+            document.getElementById('outName').innerText = document.getElementById('inName').value + " _________________";
+            document.getElementById('outClass').innerText = document.getElementById('inClass').value + " _________________";
+            document.getElementById('outFooter').innerText = document.getElementById('inFooter').value;
+            
+            const l = document.getElementById('langSelect').value;
+            l === 'ar' ? document.getElementById('ws').classList.add('rtl') : document.getElementById('ws').classList.remove('rtl');
+        }
+
+        ['inTitle', 'inName', 'inClass', 'inFooter'].forEach(id => {
+            document.getElementById(id).oninput = syncLabels;
+        });
+
+        function generate() {
+            const count = parseInt(document.getElementById('qCount').value);
+            const mode = document.getElementById('modeSelect').value;
+            const diff = document.getElementById('diffSelect').value;
+            const lang = document.getElementById('langSelect').value;
+            const d = i18n[lang] || i18n.en;
+            const container = document.getElementById('qList');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= count; i++) {
+                let qMode = mode === 'mixed' ? ['compare', 'extremes', 'units'][Math.floor(Math.random()*3)] : mode;
+                const card = document.createElement('div');
+                card.className = 'q-card';
+                
+                let html = `<div class="q-text"><span class="q-num">${i}</span> `;
+                
+                if (qMode === 'units') {
+                    const length = Math.floor(Math.random() * 8) + 3;
+                    html += `${d.q_unit}</div><div class="measurement-area">
+                        <div class="object-row">
+                            <div class="object-bar" style="width: ${length * 30}px"></div>
+                        </div>
+                        <div class="unit-ruler">
+                            ${Array(12).fill('<div class="unit-block"></div>').join('')}
+                        </div>
+                        <div class="answer-section">
+                            <div class="answer-shape">
+                                <span class="answer-content">${length}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                    const countObj = qMode === 'compare' ? 2 : 3;
+                    const lengths = generateLengths(countObj, diff);
+                    const targetIdx = Math.random() > 0.5 ? 'max' : 'min';
+                    html += `${targetIdx === 'max' ? d.q_longer : d.q_shorter}</div><div class="measurement-area">`;
+                    
+                    lengths.forEach((len, idx) => {
+                        html += `<div class="object-row">
+                            <span class="object-label">${String.fromCharCode(65 + idx)}</span>
+                            <div class="object-bar" style="width: ${len * 30}px"></div>
+                        </div>`;
+                    });
+
+                    const val = targetIdx === 'max' ? Math.max(...lengths) : Math.min(...lengths);
+                    const ansLetter = String.fromCharCode(65 + lengths.indexOf(val));
+                    html += `<div class="answer-section">
+                        <div class="answer-shape">
+                            <span class="answer-content">${ansLetter}</span>
+                        </div>
+                    </div></div>`;
+                }
+                
+                card.innerHTML = html;
+                container.appendChild(card);
+            }
+        }
+
+        function generateLengths(count, diff) {
+            let base = 3;
+            let gap = diff === 'easy' ? 4 : (diff === 'medium' ? 2 : 1);
+            let result = [];
+            while(result.length < count) {
+                let l = Math.floor(Math.random() * 10) + base;
+                if(!result.includes(l)) {
+                    let tooClose = result.some(existing => Math.abs(existing - l) < gap);
+                    if(!tooClose) result.push(l);
+                }
+                if(result.length > 20) break; // safety
+            }
+            return result;
+        }
+
+        window.onload = () => {
+            applyLang();
+            applyTheme();
+            generate();
+        };
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.getElementById("ws");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "measurement-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>

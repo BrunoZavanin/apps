@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Math Shopkeeper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&family=Courier+Prime:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default: Sunset Orange */
+            --bg-grad-1: #ff9966;
+            --bg-grad-2: #ff5e62;
+            --main-color: #d35400;
+            --accent-color: #f1c40f;
+            --paper-bg: #fffdf0;
+            --a4-width: 210mm;
+            --a4-height: 297mm;
+        }
+
+        /* THEMES */
+        [data-theme="ocean"] { --bg-grad-1: #2193b0; --bg-grad-2: #6dd5ed; --main-color: #0277bd; --accent-color: #00e5ff; --paper-bg: #f0faff; }
+        [data-theme="forest"] { --bg-grad-1: #56ab2f; --bg-grad-2: #a8e063; --main-color: #2e7d32; --accent-color: #cddc39; --paper-bg: #f1f8e9; }
+        [data-theme="berry"] { --bg-grad-1: #ec008c; --bg-grad-2: #fc6767; --main-color: #c2185b; --accent-color: #ff80ab; --paper-bg: #fff0f5; }
+        [data-theme="royal"] { --bg-grad-1: #614385; --bg-grad-2: #516395; --main-color: #4527a0; --accent-color: #b388ff; --paper-bg: #f3e5f5; }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { margin: 0; font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2)); display: flex; justify-content: center; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .settings-panel { width: 360px; background: rgba(0, 0, 0, 0.9); padding: 20px; height: 100vh; position: sticky; top: 0; overflow-y: auto; color: white; border-right: 1px solid rgba(255,255,255,0.1); scrollbar-width: thin; z-index: 10; }
+        .panel-header { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; color: var(--accent-color); margin-bottom: 20px; text-align: center; text-transform: uppercase; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        
+        .control-group { margin-bottom: 15px; border-bottom: 1px dashed #444; padding-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 700; color: var(--accent-color); font-size: 0.75rem; text-transform: uppercase; }
+        
+        select, input[type="text"], input[type="number"] { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: white; margin-bottom: 5px; font-family: 'Nunito'; }
+        select:focus, input:focus { border-color: var(--accent-color); outline: none; }
+
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 10px; }
+        .checkbox-wrapper input { width: auto; transform: scale(1.3); accent-color: var(--accent-color); }
+
+        .btn-gen { width: 100%; padding: 12px; background: var(--accent-color); color: #000; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; font-family: 'Fredoka'; text-transform: uppercase; transition: transform 0.1s; box-shadow: 0 4px 0px rgba(0,0,0,0.2); }
+        .btn-gen:active { transform: translateY(4px); box-shadow: none; }
+        .btn-print { width: 100%; padding: 12px; background: transparent; border: 2px solid var(--accent-color); border-radius: 8px; color: var(--accent-color); font-weight: 900; cursor: pointer; margin-top: 10px; }
+
+        /* WORKSHEET CONTAINER */
+        .worksheet-wrapper { 
+            background: white; width: var(--a4-width); height: var(--a4-height); 
+            position: relative; margin: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.5); 
+            display: flex; flex-direction: column; overflow: hidden; 
+        }
+
+        /* HEADER & CATALOG */
+        .shop-awning {
+            height: 35px; width: 100%;
+            background: repeating-linear-gradient(45deg, var(--bg-grad-2), var(--bg-grad-2) 20px, #ffffff 20px, #ffffff 40px);
+            border-bottom: 4px solid rgba(0,0,0,0.1);
+        }
+
+        .shop-header { text-align: center; padding: 10px 10px 5px 10px; background: #fafafa; border-bottom: 2px dashed #ddd; flex-shrink: 0; }
+        .shop-title { font-family: 'Fredoka'; font-size: 2.2rem; color: var(--main-color); margin: 0; text-transform: uppercase; line-height: 1; }
+        .shop-subtitle { color: #888; font-size: 0.8rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+
+        .catalog-area { padding: 10px; background: var(--paper-bg); border-bottom: 4px solid var(--main-color); flex-shrink: 0; }
+        .catalog-title { text-align: center; font-weight: 900; color: var(--main-color); margin-bottom: 5px; font-size: 0.9rem; text-transform: uppercase; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+        .catalog-item { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 4px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .cat-icon { font-size: 1.6rem; margin-bottom: 0px; line-height: 1.2; }
+        .cat-name { font-size: 0.65rem; font-weight: 700; color: #555; line-height: 1.1; height: 2em; overflow: hidden; display: flex; align-items: center; }
+        .cat-price { background: var(--main-color); color: white; padding: 1px 6px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; margin-top: 2px; font-family: 'Courier Prime'; }
+
+        /* RECEIPTS GRID */
+        .receipts-area {
+            flex-grow: 1; padding: 25px 30px; background: #f4f4f4;
+            display: grid; 
+            align-content: start;
+        }
+
+        /* Layout Configurations (Max 4) */
+        .layout-2 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; gap: 40px; padding: 40px; }
+        .layout-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 30px; }
+
+        /* RECEIPT CARD */
+        .receipt {
+            background: white; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+            padding: 0; display: flex; flex-direction: column; position: relative; height: 100%;
+        }
+        
+        .receipt::before, .receipt::after {
+            content: ""; position: absolute; left: 0; width: 100%; height: 6px;
+            background-size: 12px 12px;
+        }
+        .receipt::before {
+            top: -6px;
+            background: linear-gradient(135deg, transparent 50%, white 50%), linear-gradient(45deg, white 50%, transparent 50%);
+            background-size: 12px 12px; background-position: top left; background-repeat: repeat-x;
+        }
+        .receipt::after {
+            bottom: -6px;
+            background: linear-gradient(135deg, white 50%, transparent 50%), linear-gradient(45deg, transparent 50%, white 50%);
+            background-size: 12px 12px; background-position: bottom left; background-repeat: repeat-x;
+        }
+
+        .rec-header { text-align: center; padding: 8px 5px 4px; border-bottom: 1px dashed #ccc; }
+        .rec-title { font-family: 'Courier Prime'; font-weight: 900; font-size: 1rem; }
+        
+        .rec-body { padding: 15px; flex-grow: 1; font-family: 'Courier Prime'; font-size: 0.85rem; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .rec-list { flex-grow: 1; }
+        .rec-line { display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px dotted #eee; }
+        .rec-item-name { display: flex; align-items: center; gap: 4px; }
+
+        .rec-total-section { margin-top: 10px; border-top: 2px dashed #333; padding-top: 10px; }
+        .rec-row-bold { display: flex; justify-content: space-between; font-weight: 900; font-size: 1rem; margin-bottom: 4px; align-items: center; }
+        
+        .rec-input-box {
+            border: 2px solid #ccc; width: 80px; height: 25px; display: inline-block; background: #fafafa;
+            color: #d00; font-family: 'Courier Prime'; text-align: right; padding-right: 4px; font-size: 0.9rem;
+        }
+        
+        .show-ans .rec-input-box { border-color: transparent; background: transparent; }
+
+        /* FOOTER */
+        .ws-footer {
+            text-align: center; padding: 10px; font-size: 0.65rem; color: #888; font-family: 'Nunito';
+            border-top: 1px solid #eee; background: white; z-index: 5;
+            position: absolute; bottom: 0; width: 100%;
+        }
+
+        @media print {
+            body { background: white; display: block; }
+            .settings-panel { display: none; }
+            .worksheet-wrapper { margin: 0; box-shadow: none; width: 100%; height: 100vh; page-break-after: always; padding: 0; }
+            .receipt { break-inside: avoid; }
+            @page { margin: 0; }
+            .worksheet-wrapper { padding: 0mm; } 
+        }
+    </style>
+</head>
+<body data-theme="sunset">
+
+    <div class="settings-panel">
+        <div class="panel-header">🏪 MATH SHOPKEEPER</div>
+
+        <div class="control-group">
+            <label>1. Design Theme</label>
+            <select id="themeSelect" onchange="updateTheme()">
+                <option value="sunset" selected>🌅 Sunset Orange</option>
+                <option value="ocean">🌊 Ocean Blue</option>
+                <option value="forest">🌲 Forest Green</option>
+                <option value="berry">🍓 Berry Pink</option>
+                <option value="royal">👑 Royal Purple</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>2. Currency & Settings</label>
+            <select id="currency" onchange="checkCustomCurrency()">
+                <option value="USD" selected>🇺🇸 USD ($) - Decimal</option>
+                <option value="EUR">🇪🇺 EUR (€) - Decimal</option>
+                <option value="GBP">🇬🇧 GBP (£) - Decimal</option>
+                <option value="AUD">🇦🇺 AUD ($) - Decimal</option>
+                <option value="SGD">🇸🇬 SGD ($) - Decimal</option>
+                <option value="CNY">🇨🇳 CNY (¥) - Decimal</option>
+                <option value="IDR">🇮🇩 IDR (Rp) - No Decimal</option>
+                <option value="JPY">🇯🇵 JPY (¥) - No Decimal</option>
+                <option value="KRW">🇰🇷 KRW (₩) - No Decimal</option>
+                <option value="INR">🇮🇳 INR (₹) - Decimal</option>
+                <option value="CUSTOM">✏️ CUSTOM (Your Symbol)</option>
+            </select>
+
+            <input type="text" id="customSymbol" placeholder="Enter Symbol (e.g. ₱)" style="display:none; margin-top:5px;" oninput="generateData()">
+
+            <label style="margin-top:10px; font-weight:400;">Receipts per Page (Max 4)</label>
+            <select id="receiptCount" onchange="generateData()">
+                <option value="2">2 Receipts (Large)</option>
+                <option value="4" selected>4 Receipts (Standard)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>3. Labels & Text (Editable)</label>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="text" id="lblTotal" value="TOTAL" oninput="render()">
+                <input type="text" id="lblCash" value="CASH" oninput="render()">
+                <input type="text" id="lblChange" value="CHANGE" oninput="render()">
+            </div>
+            <input type="text" id="shopName" value="MATH SHOPKEEPER" oninput="render()" placeholder="Shop Name">
+            <input type="text" id="shopSubtitle" value="OFFICIAL PRICE LIST & ORDER FORMS" oninput="render()" placeholder="Subtitle Text">
+            <input type="text" id="catalogTitle" value="--- CATALOG ---" oninput="render()" placeholder="Catalog Header">
+            <input type="text" id="footerText" value="Generated with OrbitLogic" oninput="render()" placeholder="Footer Text">
+        </div>
+
+        <div class="control-group">
+            <label>4. Shop Content</label>
+            <select id="shopTheme" onchange="generateData()">
+                <option value="fruit">🍎 Fruit Stand</option>
+                <option value="toys">🧸 Toy Store</option>
+                <option value="bakery">🥐 Bakery</option>
+                <option value="school">✏️ Stationery</option>
+                <option value="cafe">🍔 Burger Cafe</option>
+            </select>
+            
+            <label style="margin-top:10px; font-weight:400;">Items per Receipt</label>
+            <select id="itemCount" onchange="generateData()">
+                <option value="2">2 Items</option>
+                <option value="3" selected>3 Items</option>
+                <option value="4">4 Items</option>
+                <option value="random">🎲 Random (2-5 Items)</option>
+            </select>
+
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="showSolution" onchange="render()">
+                <span>Show Answer Key</span>
+            </label>
+        </div>
+
+        <button class="btn-gen" onclick="generateData()">🎲 RE-ROLL ITEMS & PRICES</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT WORKSHEET</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="worksheet-wrapper" id="wsWrapper">
+        <div class="shop-awning"></div>
+        
+        <div class="shop-header">
+            <h1 class="shop-title" id="outShopName">MATH SHOPKEEPER</h1>
+            <div class="shop-subtitle" id="outSubtitle">OFFICIAL PRICE LIST & ORDER FORMS</div>
+        </div>
+
+        <div class="catalog-area">
+            <div class="catalog-title" id="outCatalogTitle">--- CATALOG ---</div>
+            <div class="catalog-grid" id="catalogGrid">
+                </div>
+        </div>
+
+        <div class="receipts-area layout-4" id="receiptsArea">
+            </div>
+
+        <div class="ws-footer" id="outFooter">Generated with OrbitLogic</div>
+    </div>
+
+    <script>
+        // --- DATASETS ---
+        const themes = {
+            fruit: [
+                {i:'🍎', n:'Apple'}, {i:'🍌', n:'Banana'}, {i:'🍇', n:'Grapes'}, {i:'🍉', n:'Melon'}, 
+                {i:'🍓', n:'Berry'}, {i:'🍍', n:'Pineapple'}, {i:'🍒', n:'Cherry'}, {i:'🥑', n:'Avocado'},
+                {i:'🌽', n:'Corn'}, {i:'🥕', n:'Carrot'}, {i:'🥔', n:'Potato'}, {i:'🥦', n:'Broccoli'}
+            ],
+            toys: [
+                {i:'🧸', n:'Teddy'}, {i:'🚗', n:'Car'}, {i:'🚂', n:'Train'}, {i:'🪁', n:'Kite'},
+                {i:'⚽', n:'Ball'}, {i:'🥁', n:'Drum'}, {i:'🧩', n:'Puzzle'}, {i:'🚀', n:'Rocket'},
+                {i:'🚤', n:'Boat'}, {i:'🦖', n:'Dino'}, {i:'🦄', n:'Unicorn'}, {i:'🧱', n:'Bricks'}
+            ],
+            bakery: [
+                {i:'🥐', n:'Croissant'}, {i:'🥯', n:'Bagel'}, {i:'🥖', n:'Baguette'}, {i:'🥨', n:'Pretzel'},
+                {i:'🥞', n:'Pancake'}, {i:'🧇', n:'Waffle'}, {i:'🍩', n:'Donut'}, {i:'🍪', n:'Cookie'},
+                {i:'🍰', n:'Cake'}, {i:'🧁', n:'Cupcake'}, {i:'🥧', n:'Pie'}, {i:'🍞', n:'Bread'}
+            ],
+            school: [
+                {i:'✏️', n:'Pencil'}, {i:'🖊️', n:'Pen'}, {i:'📏', n:'Ruler'}, {i:'✂️', n:'Scissors'},
+                {i:'📓', n:'Book'}, {i:'📎', n:'Clip'}, {i:'🎒', n:'Bag'}, {i:'🖍️', n:'Crayon'},
+                {i:'🖌️', n:'Brush'}, {i:'🎨', n:'Palette'}, {i:'📌', n:'Pin'}, {i:'📐', n:'Ruler'}
+            ],
+            cafe: [
+                {i:'🍔', n:'Burger'}, {i:'🍟', n:'Fries'}, {i:'🌭', n:'Hotdog'}, {i:'🍕', n:'Pizza'},
+                {i:'🥤', n:'Soda'}, {i:'🍦', n:'Cone'}, {i:'🍿', n:'Popcorn'}, {i:'🍗', n:'Chicken'},
+                {i:'🥗', n:'Salad'}, {i:'🍩', n:'Donut'}, {i:'🌮', n:'Taco'}, {i:'🥪', n:'Sandwich'}
+            ]
+        };
+
+        const currencies = {
+            USD: { s: '$', dec: 2 },
+            EUR: { s: '€', dec: 2 },
+            GBP: { s: '£', dec: 2 },
+            AUD: { s: 'A$', dec: 2 },
+            SGD: { s: 'S$', dec: 2 },
+            CNY: { s: '¥', dec: 2 },
+            IDR: { s: 'Rp', dec: 0 },
+            JPY: { s: '¥', dec: 0 },
+            KRW: { s: '₩', dec: 0 },
+            INR: { s: '₹', dec: 2 },
+            CUSTOM: { s: '', dec: 2 } // Symbol taken from input
+        };
+
+        // --- GLOBAL STATE ---
+        let appState = {
+            catalog: [],
+            receipts: []
+        };
+
+        function updateTheme() {
+            document.body.setAttribute('data-theme', document.getElementById('themeSelect').value);
+        }
+
+        function checkCustomCurrency() {
+            const val = document.getElementById('currency').value;
+            const input = document.getElementById('customSymbol');
+            if(val === 'CUSTOM') {
+                input.style.display = 'block';
+            } else {
+                input.style.display = 'none';
+            }
+            generateData();
+        }
+
+        function formatPrice(amount, currKey) {
+            let conf = currencies[currKey];
+            let symbol = conf.s;
+            
+            // Override if custom
+            if(currKey === 'CUSTOM') {
+                symbol = document.getElementById('customSymbol').value || '$';
+            }
+
+            if (conf.dec === 0) {
+                // Whole numbers with separators (e.g. 5,000)
+                return symbol + ' ' + amount.toLocaleString('en-US'); 
+            } else {
+                // Decimals (e.g. 5.00)
+                return symbol + amount.toFixed(conf.dec);
+            }
+        }
+
+        // --- LOGIC: GENERATE DATA ---
+        function generateData() {
+            const themeKey = document.getElementById('shopTheme').value;
+            const currKey = document.getElementById('currency').value;
+            const receiptCount = parseInt(document.getElementById('receiptCount').value);
+            const itemCountVal = document.getElementById('itemCount').value; 
+            
+            const rawItems = themes[themeKey];
+
+            // 1. Generate Catalog Prices
+            appState.catalog = rawItems.map(item => {
+                let price;
+                if (currKey === 'IDR') {
+                    // IDR: 2000 - 50000 (Ribuan)
+                    let min = 2, max = 50;
+                    price = (Math.floor(Math.random() * (max - min + 1)) + min) * 1000;
+                    if(Math.random() > 0.6) price += 500;
+                } else if (currKey === 'JPY' || currKey === 'KRW') {
+                    // JPY/KRW: 100 - 2000
+                    let min = 1, max = 20;
+                    price = (Math.floor(Math.random() * (max - min + 1)) + min) * 100;
+                } else {
+                    // Decimals: 0.50 - 20.00
+                    let min = 0.5, max = 20;
+                    price = (Math.random() * (max - min) + min);
+                    price = Math.round(price * 20) / 20; // Round to nearest 0.05
+                }
+                return { ...item, price: price };
+            });
+
+            // 2. Generate Receipt Content
+            appState.receipts = [];
+            
+            for(let i=0; i<receiptCount; i++) {
+                let itemsToBuy = [];
+                let total = 0;
+                let shuffled = [...appState.catalog].sort(() => 0.5 - Math.random());
+                
+                // Determine item count
+                let numItems;
+                if(itemCountVal === 'random') {
+                     // Random 2-5 items
+                     numItems = Math.floor(Math.random() * 4) + 2;
+                } else {
+                    numItems = parseInt(itemCountVal);
+                }
+
+                for(let k=0; k<numItems; k++) {
+                    let item = shuffled[k];
+                    let qty = Math.floor(Math.random() * 3) + 1;
+                    let subtotal = item.price * qty;
+                    total += subtotal;
+                    itemsToBuy.push({...item, qty, subtotal});
+                }
+
+                // Payment Calculation
+                let payment = 0;
+                if(currKey === 'IDR') {
+                    payment = Math.ceil(total / 5000) * 5000;
+                    if (payment <= total) payment += 5000;
+                } else if (currKey === 'JPY' || currKey === 'KRW') {
+                    payment = Math.ceil(total / 500) * 500;
+                    if (payment <= total) payment += 500;
+                } else {
+                    payment = Math.ceil(total / 5) * 5;
+                    if (payment <= total) payment += 5;
+                    if (Math.random() > 0.7) payment = Math.ceil(total) + 1; 
+                }
+                
+                let change = payment - total;
+                appState.receipts.push({ items: itemsToBuy, total, payment, change, id: 1001+i });
+            }
+
+            render();
+        }
+
+        // --- LOGIC: RENDER ---
+        function render() {
+            const currKey = document.getElementById('currency').value;
+            const shopName = document.getElementById('shopName').value;
+            const shopSubtitle = document.getElementById('shopSubtitle').value;
+            const catalogTitle = document.getElementById('catalogTitle').value;
+            const lblTotal = document.getElementById('lblTotal').value;
+            const lblCash = document.getElementById('lblCash').value;
+            const lblChange = document.getElementById('lblChange').value;
+            const footerText = document.getElementById('footerText').value;
+            const showSolution = document.getElementById('showSolution').checked;
+            const receiptCount = document.getElementById('receiptCount').value;
+
+            document.getElementById('outShopName').innerText = shopName;
+            document.getElementById('outSubtitle').innerText = shopSubtitle;
+            document.getElementById('outCatalogTitle').innerText = catalogTitle;
+            document.getElementById('outFooter').innerText = footerText;
+
+            // Render Catalog
+            const catGrid = document.getElementById('catalogGrid');
+            catGrid.innerHTML = '';
+            appState.catalog.forEach(item => {
+                catGrid.innerHTML += `
+                    <div class="catalog-item">
+                        <div class="cat-icon">${item.i}</div>
+                        <div class="cat-name">${item.n}</div>
+                        <div class="cat-price">${formatPrice(item.price, currKey)}</div>
+                    </div>
+                `;
+            });
+
+            // Render Receipts
+            const receiptArea = document.getElementById('receiptsArea');
+            receiptArea.className = `receipts-area layout-${receiptCount}`;
+            receiptArea.innerHTML = '';
+
+            const wrapper = document.getElementById('wsWrapper');
+            if(showSolution) wrapper.classList.add('show-ans');
+            else wrapper.classList.remove('show-ans');
+
+            appState.receipts.forEach(rec => {
+                let linesHtml = rec.items.map(it => `
+                    <div class="rec-line">
+                        <div class="rec-item-name">${it.qty} x ${it.i} ${it.n}</div>
+                        <div>${formatPrice(it.subtotal, currKey)}</div>
+                    </div>
+                `).join('');
+
+                receiptArea.innerHTML += `
+                    <div class="receipt">
+                        <div class="rec-header">
+                            <div class="rec-title">RECEIPT #${rec.id}</div>
+                        </div>
+                        <div class="rec-body">
+                            <div class="rec-list">
+                                ${linesHtml}
+                            </div>
+                            <div class="rec-total-section">
+                                <div class="rec-row-bold">
+                                    <span>${lblTotal}</span>
+                                    <span class="rec-input-box" data-ans="${formatPrice(rec.total, currKey)}"></span>
+                                </div>
+                                <div class="rec-row-bold" style="color:#555;">
+                                    <span>${lblCash}</span>
+                                    <span>${formatPrice(rec.payment, currKey)}</span>
+                                </div>
+                                <div class="rec-row-bold" style="color:var(--main-color); margin-top:4px;">
+                                    <span>${lblChange}</span>
+                                    <span class="rec-input-box" data-ans="${formatPrice(rec.change, currKey)}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Render Inputs
+            document.querySelectorAll('.rec-input-box').forEach(box => {
+                box.innerText = showSolution ? box.getAttribute('data-ans') : '';
+            });
+        }
+
+        window.onload = () => {
+            updateTheme();
+            generateData();
+        };
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.getElementById("wsWrapper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "math-shopkeeper-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>

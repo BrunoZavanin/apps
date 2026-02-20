@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidzPaper - Robot Simple Coding</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default Colors (Ocean) */
+            --bg-grad-1: #1e3c72;
+            --bg-grad-2: #2a5298;
+            --main-color: #2a5298;
+            --accent-color: #00d2ff;
+            --text-color: #333;
+            --a4-width: 210mm;
+            --a4-height: 297mm;
+            --grid-n: 4; /* Default variable for grid size */
+        }
+
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; }
+        body { margin: 0; font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2)); display: flex; justify-content: center; min-height: 100vh; transition: background 0.5s; }
+
+        /* Sidebar */
+        .settings-panel { width: 360px; background: rgba(0, 0, 0, 0.95); padding: 20px; height: 100vh; position: sticky; top: 0; overflow-y: auto; color: white; border-right: 1px solid rgba(255,255,255,0.1); scrollbar-width: thin; }
+        .panel-header { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; color: var(--accent-color); margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        
+        .control-group { margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 700; color: var(--accent-color); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        select, input[type="text"], input[type="number"] { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #444; background: #222; color: white; margin-bottom: 5px; font-family: 'Nunito'; font-size: 0.9rem; }
+        select:focus, input:focus { border-color: var(--accent-color); outline: none; background: #333; }
+        
+        /* New Color Scheme Buttons */
+        .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .theme-btn {
+            padding: 10px; border: 2px solid #444; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 0.8rem; font-weight: bold; background: #222; color: #fff; transition: 0.2s;
+        }
+        .theme-btn:hover, .theme-btn.active { border-color: white; background: #333; }
+        .color-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,0.5); }
+
+        /* Sliders */
+        .slider-container { display: flex; align-items: center; gap: 10px; }
+        input[type=range] { flex-grow: 1; accent-color: var(--accent-color); cursor: pointer; }
+        .val-display { width: 30px; text-align: center; font-weight: bold; font-size: 0.9rem; }
+
+        /* Checkbox */
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 5px; }
+        .checkbox-wrapper input { width: auto; transform: scale(1.3); accent-color: var(--accent-color); }
+
+        .btn-gen { width: 100%; padding: 12px; background: var(--accent-color); color: #000; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; font-family: 'Fredoka'; text-transform: uppercase; transition: transform 0.1s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-gen:active { transform: scale(0.98); }
+        .btn-print { width: 100%; padding: 12px; background: transparent; border: 2px solid var(--accent-color); border-radius: 8px; color: var(--accent-color); font-weight: 900; cursor: pointer; margin-top: 10px; }
+        .btn-print:hover { background: rgba(255,255,255,0.1); }
+
+        /* Worksheet */
+        .worksheet-wrapper { background: white; width: var(--a4-width); height: var(--a4-height); padding: 10mm; position: relative; margin: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; }
+
+        .ws-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--main-color); padding-bottom: 10px; margin-bottom: 15px; flex-shrink: 0; }
+        .ws-title { font-family: 'Fredoka'; font-size: 2.2rem; color: var(--main-color); text-transform: uppercase; line-height: 1; margin-bottom: 5px; }
+        .ws-instr { font-size: 0.9rem; color: #555; max-width: 450px; line-height: 1.3; }
+        .ws-info { text-align: right; font-size: 0.9rem; color: #444; font-weight: bold; line-height: 1.8; }
+        .ws-info span { color: var(--main-color); }
+
+        .puzzles-container {
+            display: grid;
+            gap: 15px;
+            flex-grow: 1;
+            min-height: 0; 
+        }
+        
+        .layout-2 { grid-template-rows: 1fr 1fr; grid-template-columns: 1fr; }
+        .layout-4 { grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr; }
+        .layout-6 { grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr; }
+
+        .puzzle-card {
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+            overflow: hidden;
+            border-color: rgba(0,0,0,0.1); 
+        }
+
+        .puzzle-header {
+            display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; color: var(--main-color); font-family: 'Fredoka'; flex-shrink: 0;
+        }
+
+        .grid-wrapper {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+            width: 100%; /* Ensure full width availability */
+        }
+
+        .grid-map {
+            display: grid;
+            margin: 0 auto;
+            border: 2px solid var(--main-color);
+            background: var(--main-color);
+            aspect-ratio: 1 / 1; /* FORCE PERFECT SQUARE */
+            height: auto;
+            max-height: 100%;
+            max-width: 100%;
+            /* -- MAGIC FIX: minmax(0, 1fr) ignores content size, forcing equal cells -- */
+            grid-template-columns: repeat(var(--grid-n), minmax(0, 1fr));
+            grid-template-rows: repeat(var(--grid-n), minmax(0, 1fr));
+        }
+
+        /* Responsive fonts logic based on layout AND grid size */
+        .layout-2 .grid-cell { font-size: 2.5rem; }
+        .layout-4 .grid-cell { font-size: 1.8rem; }
+        .layout-6 .grid-cell { font-size: 1.2rem; }
+
+        /* Specific adjustments for high density grids to prevent overflow */
+        .layout-2.g-size-6 .grid-cell { font-size: 1.8rem; }
+        .layout-4.g-size-5 .grid-cell { font-size: 1.5rem; }
+        .layout-4.g-size-6 .grid-cell { font-size: 1.2rem; }
+        .layout-6.g-size-5 .grid-cell { font-size: 1.0rem; }
+        .layout-6.g-size-6 .grid-cell { font-size: 0.9rem; } /* Smallest for compact */
+
+        .layout-6 .puzzle-header { font-size: 0.9rem; }
+        .layout-6 .puzzle-card { padding: 5px; }
+
+        .grid-cell {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 1px solid #eee;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Cuts off if emoji is slightly too big */
+        }
+
+        /* ARROW LOGIC (Hidden by default) */
+        .path-arrow {
+            display: none; 
+            font-weight: 900;
+            font-size: 1.2em; /* Relative to cell font size */
+            z-index: 1;
+            text-shadow: 0 0 2px white;
+        }
+        
+        .show-ans .path-arrow { 
+            display: block; 
+            color: #d00; 
+            opacity: 1; 
+            transform: scale(1.1); 
+        }
+
+        .input-area {
+            margin-top: 5px;
+            border-top: 1px dashed #ccc;
+            padding-top: 5px;
+            flex-shrink: 0; 
+        }
+        .arrow-guide {
+            display: flex; gap: 10px; justify-content: center; margin-bottom: 3px; color: #888; font-size: 0.8rem;
+        }
+        
+        .code-box {
+            width: 100%; 
+            height: 38px; 
+            border: 2px solid #ccc; 
+            border-radius: 6px;
+            display: flex; align-items: center; 
+            padding: 0 10px; 
+            color: #aaa; 
+            font-style: italic; 
+            font-size: 0.9rem;
+            margin-top: 5px; 
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .layout-6 .code-box { height: 28px; font-size: 0.8rem; }
+
+        .solution-text { display: none; color: #d00; font-weight: bold; letter-spacing: 3px; font-style: normal; width: 100%; }
+        .show-ans .solution-text { display: block; }
+
+        @media print {
+            body { background: white; display: block; }
+            .settings-panel { display: none; }
+            .worksheet-wrapper { margin: 0; box-shadow: none; width: 100%; height: 100vh; page-break-after: always; padding: 10mm; }
+            .puzzle-card { break-inside: avoid; border-color: #aaa; }
+            .grid-map { border-color: #000; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="settings-panel">
+        <div class="panel-header">🤖 Robot Simple Coding</div>
+
+        <div class="control-group">
+            <label>1. Language</label>
+            <select id="langSelect" onchange="updateLanguage()">
+                <option value="en" selected>🇺🇸 English</option>
+                <option value="id">🇮🇩 Indonesia</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="ms">🇲🇾 Melayu</option>
+                <option value="ar">🇸🇦 Arabic</option>
+                <option value="ja">🇯🇵 Japanese</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>2. Customize Text</label>
+            <input type="text" id="inpTitle" value="CODING QUEST" oninput="renderText()">
+            <input type="text" id="inpInstr" value="Guide the character to the goal! Write the arrows." oninput="renderText()">
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="inpName" value="Name" oninput="renderText()">
+                <input type="text" id="inpWrite" value="Write Code:" oninput="renderText()">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>3. Color Scheme</label>
+            <div class="theme-grid">
+                <div class="theme-btn" onclick="applyPreset('#2a5298', '#00d2ff', '#1e3c72')" style="border-left: 4px solid #2a5298;">
+                    <span class="color-dot" style="background:#2a5298"></span> Ocean
+                </div>
+                <div class="theme-btn" onclick="applyPreset('#c0392b', '#f1c40f', '#870000')" style="border-left: 4px solid #c0392b;">
+                    <span class="color-dot" style="background:#c0392b"></span> Mars
+                </div>
+                <div class="theme-btn" onclick="applyPreset('#27ae60', '#f39c12', '#145a32')" style="border-left: 4px solid #27ae60;">
+                    <span class="color-dot" style="background:#27ae60"></span> Forest
+                </div>
+                <div class="theme-btn" onclick="applyPreset('#8e44ad', '#ff7979', '#5b2c6f')" style="border-left: 4px solid #8e44ad;">
+                    <span class="color-dot" style="background:#8e44ad"></span> Berry
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>4. Game Settings</label>
+            <label style="font-weight:400; font-size:0.8rem; margin-top:5px;">Theme</label>
+            <select id="themeSelect" onchange="generateAll()">
+                <option value="space">🤖 Space Robot (Robot -> Battery)</option>
+                <option value="farm">🐴 Horse Ride (Horse -> Grass)</option>
+                <option value="traffic">🚗 City Drive (Car -> Flag)</option>
+                <option value="nature">🦋 Butterfly (Butterfly -> Flower)</option>
+                <option value="shapes">🔷 Shapes (Circle -> Star)</option>
+            </select>
+            
+            <label style="font-weight:400; font-size:0.8rem; margin-top:10px;">Layout</label>
+            <select id="questCount" onchange="generateAll()">
+                <option value="2">2 Quests (Large)</option>
+                <option value="4" selected>4 Quests (Standard)</option>
+                <option value="6">6 Quests (Compact)</option>
+            </select>
+
+            <label style="font-weight:400; font-size:0.8rem; margin-top:10px;">Grid Size</label>
+            <select id="gridSize" onchange="generateAll()"> <option value="4">4 x 4 (Easy)</option>
+                <option value="5" selected>5 x 5 (Medium)</option>
+                <option value="6">6 x 6 (Hard)</option>
+            </select>
+
+            <label style="font-weight:400; font-size:0.8rem; margin-top:10px;">Obstacles</label>
+            <div class="slider-container">
+                <input type="range" id="obstacleCount" min="1" max="10" value="4" oninput="document.getElementById('obsVal').innerText=this.value; generateAll();">
+                <span id="obsVal" class="val-display">4</span>
+            </div>
+
+            <label class="checkbox-wrapper" style="margin-top:15px;">
+                <input type="checkbox" id="showSolution" onchange="toggleSolution()">
+                <span style="color:var(--accent-color); font-weight:bold;">Show Answer Key</span>
+            </label>
+        </div>
+
+        <button class="btn-gen" onclick="generateAll()">🎲 SHUFFLE (GENERATE NEW)</button>
+        <button class="btn-print" onclick="window.print()">🖨️ PRINT PDF</button>
+		<button class="btn-print" onclick="saveAsImage()">💾 SAVE AS IMAGE</button>
+
+    </div>
+
+    <div class="worksheet-wrapper" id="wsWrapper">
+        <div class="ws-header">
+            <div>
+                <div class="ws-title" id="outTitle">CODING QUEST</div>
+                <div class="ws-instr" id="outInstr">Guide the character to the goal! Write the arrows.</div>
+            </div>
+            <div class="ws-info">
+                <span id="outName">Name</span>: _________________<br>
+                Date: _________________
+            </div>
+        </div>
+
+        <div class="puzzles-container layout-4" id="puzzlesContainer">
+            </div>
+    </div>
+
+    <script>
+        const themes = {
+            space: { player: '🤖', goal: '🔋', wall: '☄️', bg: '#f0f4ff' },
+            farm: { player: '🐴', goal: '🌾', wall: '🪨', bg: '#f5fff0' },
+            traffic: { player: '🚗', goal: '🏁', wall: '🚧', bg: '#fffbf0' },
+            nature: { player: '🦋', goal: '🌻', wall: '🕸️', bg: '#fff0f5' },
+            shapes: { player: '🔵', goal: '⭐', wall: '⬛', bg: '#ffffff' }
+        };
+
+        const translations = {
+            id: { t: "MISI KODING ROBOT", i: "Bantu karakter mencapai tujuan! Tulis arah panahnya.", n: "Nama", w: "Tulis Kode:" },
+            en: { t: "ROBOT CODING QUEST", i: "Guide the character to the goal! Write the arrow code.", n: "Name", w: "Write Code:" },
+            ms: { t: "MISI KODING ROBOT", i: "Pandu watak ke matlamat! Tulis kod anak panah.", n: "Nama", w: "Tulis Kod:" },
+            de: { t: "ROBOTER-CODIERUNG", i: "Führe die Figur zum Ziel! Schreibe die Pfeile.", n: "Name", w: "Code:" },
+            fr: { t: "QUÊTE DE CODAGE", i: "Guide le personnage vers l'objectif ! Écris les flèches.", n: "Nom", w: "Code:" },
+            es: { t: "MISION DE CODIGO", i: "¡Guía al personaje a la meta! Escribe las flechas.", n: "Nombre", w: "Código:" },
+            ar: { t: "مهمة البرمجة", i: "وجه الشخصية للهدف! اكتب الأسهم.", n: "الاسم", w: "الكود:" },
+            ja: { t: "ロボットコーディング", i: "キャラクターをゴールに導こう！矢印を書いてね。", n: "名前", w: "コード:" }
+        };
+
+        function applyPreset(main, acc, bgGrad) {
+            const root = document.documentElement;
+            root.style.setProperty('--main-color', main);
+            root.style.setProperty('--accent-color', acc);
+            root.style.setProperty('--bg-grad-1', bgGrad);
+            root.style.setProperty('--bg-grad-2', main);
+        }
+
+        function updateLanguage() {
+            const lang = document.getElementById('langSelect').value;
+            const data = translations[lang] || translations['en'];
+            document.getElementById('inpTitle').value = data.t;
+            document.getElementById('inpInstr').value = data.i;
+            document.getElementById('inpName').value = data.n;
+            document.getElementById('inpWrite').value = data.w;
+            renderText();
+        }
+
+        function renderText() {
+            document.getElementById('outTitle').innerText = document.getElementById('inpTitle').value;
+            document.getElementById('outInstr').innerText = document.getElementById('inpInstr').value;
+            document.getElementById('outName').innerText = document.getElementById('inpName').value;
+            document.querySelectorAll('.lbl-write').forEach(el => el.innerText = document.getElementById('inpWrite').value);
+        }
+
+        function toggleSolution() {
+            const wrap = document.getElementById('wsWrapper');
+            if(document.getElementById('showSolution').checked) {
+                wrap.classList.add('show-ans');
+            } else {
+                wrap.classList.remove('show-ans');
+            }
+        }
+
+        function generateAll() {
+            const container = document.getElementById('puzzlesContainer');
+            const count = parseInt(document.getElementById('questCount').value);
+            const size = parseInt(document.getElementById('gridSize').value);
+            
+            // Set CSS variable for grid columns/rows
+            document.documentElement.style.setProperty('--grid-n', size);
+
+            container.className = 'puzzles-container'; 
+            container.classList.add('layout-' + count);
+            container.classList.add('g-size-' + size); // Added class for font sizing
+
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= count; i++) {
+                container.innerHTML += createPuzzle(i, size);
+            }
+            renderText();
+            toggleSolution();
+        }
+
+        function createPuzzle(index, size) {
+            const obstacleCount = parseInt(document.getElementById('obstacleCount').value);
+            const themeKey = document.getElementById('themeSelect').value;
+            const theme = themes[themeKey];
+
+            // Map Generation
+            let grid, path, start, end, walls;
+            let attempts = 0;
+            
+            while (!path && attempts < 50) {
+                grid = Array(size).fill().map(() => Array(size).fill(0));
+                walls = [];
+                start = [Math.floor(Math.random()*size), Math.floor(Math.random()*size)];
+                do {
+                    end = [Math.floor(Math.random()*size), Math.floor(Math.random()*size)];
+                } while (start[0]===end[0] && start[1]===end[1]);
+
+                for(let w=0; w<obstacleCount; w++) {
+                    let wx, wy;
+                    do {
+                        wx = Math.floor(Math.random()*size);
+                        wy = Math.floor(Math.random()*size);
+                    } while ((wx===start[0] && wy===start[1]) || (wx===end[0] && wy===end[1]) || grid[wx][wy] === 1);
+                    grid[wx][wy] = 1; 
+                }
+                path = findShortestPath(grid, start, end, size);
+                attempts++;
+            }
+
+            if (!path) { path = []; grid = Array(size).fill().map(() => Array(size).fill(0)); }
+
+            // HTML Grid Render
+            // Note: grid-template-columns is handled by CSS class and variable now
+            let gridHtml = `<div class="grid-map">`;
+            let pathMap = {};
+            let arrowList = [];
+            
+            if(path && path.length > 1) {
+                for(let k=0; k<path.length-1; k++) {
+                    let curr = path[k];
+                    let next = path[k+1];
+                    let key = curr[0]+','+curr[1];
+                    let arrow = '';
+                    if(next[0] > curr[0]) arrow = '⬇️'; 
+                    else if(next[0] < curr[0]) arrow = '⬆️';
+                    else if(next[1] > curr[1]) arrow = '➡️';
+                    else if(next[1] < curr[1]) arrow = '⬅️';
+                    
+                    if(arrow) {
+                        pathMap[key] = arrow;
+                        arrowList.push(arrow);
+                    }
+                }
+            }
+
+            for(let r=0; r<size; r++) {
+                for(let c=0; c<size; c++) {
+                    let content = '';
+                    let isWall = grid[r][c] === 1;
+                    let isStart = (r===start[0] && c===start[1]);
+                    let isEnd = (r===end[0] && c===end[1]);
+                    
+                    if (isStart) content = theme.player;
+                    else if (isEnd) content = theme.goal;
+                    else if (isWall) content = theme.wall;
+                    
+                    let arrowOverlay = '';
+                    if (pathMap[r+','+c]) {
+                        arrowOverlay = `<div class="path-arrow" style="position:absolute;">${pathMap[r+','+c]}</div>`;
+                    }
+
+                    gridHtml += `
+                        <div class="grid-cell" style="background:${theme.bg};">
+                            <span style="z-index:2">${content}</span>
+                            ${arrowOverlay}
+                        </div>
+                    `;
+                }
+            }
+            gridHtml += '</div>';
+
+            const writeLabel = document.getElementById('inpWrite').value || "Write Code:";
+            const answerString = arrowList.join(' ');
+
+            return `
+                <div class="puzzle-card">
+                    <div class="puzzle-header">
+                        <span>QUEST #${index}</span>
+                    </div>
+                    <div class="grid-wrapper">
+                        ${gridHtml}
+                    </div>
+                    <div class="input-area">
+                        <div class="arrow-guide">⬆️ ⬇️ ⬅️ ➡️</div>
+                        <div style="font-size:0.8rem; font-weight:bold; margin-bottom:2px;" class="lbl-write">${writeLabel}</div>
+                        <div class="code-box">
+                            <span class="solution-text">${answerString}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function findShortestPath(grid, start, end, size) {
+            let queue = [[start]];
+            let visited = new Set();
+            visited.add(start.toString());
+
+            while (queue.length > 0) {
+                let path = queue.shift();
+                let [r, c] = path[path.length - 1];
+                if (r === end[0] && c === end[1]) return path;
+
+                const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+                for (let [dr, dc] of dirs) {
+                    let nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < size && nc >= 0 && nc < size && grid[nr][nc] === 0 && !visited.has([nr, nc].toString())) {
+                        visited.add([nr, nc].toString());
+                        queue.push([...path, [nr, nc]]);
+                    }
+                }
+            }
+            return null;
+        }
+
+        window.onload = () => {
+            updateLanguage();
+            generateAll();
+        };
+    </script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function saveAsImage() {
+    const target = document.getElementById("wsWrapper");
+
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Firefox/.test(navigator.userAgent);
+
+    html2canvas(target, {
+        scale: isChrome ? 1.5 : 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "robot-coding-worksheet.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+</script>
+
+</body>
+</html>
